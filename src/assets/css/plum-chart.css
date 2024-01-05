@@ -85,7 +85,7 @@
     text-align: center;
     border-radius: 3px;
     z-index: 100;
-    padding: 15px;
+    padding: 20px 10px 10px 10px;
     background-color: #e9ebfd;
     border: 2px solid #19204d;
     color: #19204d;
@@ -122,6 +122,18 @@
 .pl-tooltip * {
     user-select: text;
 }
+
+.pl-tooltip-close {
+    width: 20px;
+    height: 20px;
+    top: 0px;
+    right: 0px;
+    position: absolute;
+}
+.pl-tooltip-close:hover {
+    cursor: pointer;
+}
+
 
 .pl-tooltip-title {
     font-weight: bold;

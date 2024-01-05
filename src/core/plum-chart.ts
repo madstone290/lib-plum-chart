@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { Entity, PointEvent, RangeEvent } from "./plum-chart-core.types";
 import { ChartOptions, CoreChart } from "./plum-chart-core";
 import { PlumChartOptions, PlumChartData, SortDirection, PlumChartState } from "./plum-chart.types";
+import CLOSE_ICON from "@/assets/image/close.svg";
 
 const CLS_ROOT_CONTAINER = "pl-root-container";
 const CLS_LEGEND_CONTAINER = "pl-legend-container";
@@ -25,6 +26,7 @@ const CLS_GRID_ROW = "pl-grid-row";
 const CLS_GRID_CELL = "pl-grid-cell";
 
 const CLS_TOOLTIP = "pl-tooltip";
+const CLS_TOOLTIP_CLOSE = "pl-tooltip-close";
 const CLS_TOOLTIP_TITLE = "pl-tooltip-title";
 const CLS_TOOLTIP_VISIBLE = "pl-tooltip-visible";
 const CLS_TOOLTIP_INVISIBLE = "pl-tooltip-invisible";
@@ -349,6 +351,14 @@ export function PlumChart() {
     }
 
     function _renderDefaultPointEventTooltip(event: PointEvent, eventEl: HTMLElement, tooltipEl: HTMLElement) {
+        const closeEl = document.createElement("img");
+        closeEl.classList.add(CLS_TOOLTIP_CLOSE);
+        closeEl.src = CLOSE_ICON;
+        closeEl.addEventListener("click", (e) => {
+            _hideTooltip(tooltipEl);
+        });
+        tooltipEl.appendChild(closeEl);
+
         const titleEl = document.createElement("div");
         titleEl.classList.add(CLS_TOOLTIP_TITLE);
         const eventTitle = _options.getTooltipTitle(event);
@@ -411,6 +421,14 @@ export function PlumChart() {
     }
 
     function _renderDefaultRangeEventTooltip(event: RangeEvent, eventEl: HTMLElement, tooltipEl: HTMLElement) {
+        const closeEl = document.createElement("img");
+        closeEl.classList.add(CLS_TOOLTIP_CLOSE);
+        closeEl.src = CLOSE_ICON;
+        closeEl.addEventListener("click", (e) => {
+            _hideTooltip(tooltipEl);
+        });
+        tooltipEl.appendChild(closeEl);
+
         const titleEl = document.createElement("div");
         titleEl.classList.add(CLS_TOOLTIP_TITLE);
         titleEl.innerText = _options.getTooltipTitle(event);
@@ -474,9 +492,6 @@ export function PlumChart() {
         if (_options.useEventHoverColor) {
             _setEventHoverColor(boxEl);
         }
-
-
-
     }
 
     /**
@@ -661,7 +676,6 @@ export function PlumChart() {
      */
     function _renderGridRow(index: number, entity: Entity, containerEl: HTMLElement): void {
         containerEl.classList.add(CLS_GRID_ROW);
-        console.log("renderGridRow", index, entity, containerEl);
         let cellIndex = 0;
         for (const column of _state.gridColumnMap.keys()) {
             const itemEl = document.createElement("div");
