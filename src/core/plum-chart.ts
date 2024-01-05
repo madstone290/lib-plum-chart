@@ -120,7 +120,7 @@ export function PlumChart() {
         sortColumnField: "",
         containerEl: NULL_ELEMENT,
         legendsEl: NULL_ELEMENT,
-        fixedTooltipMap: new Map()
+        fixedTooltips: new Set()
     };
 
     /**
@@ -234,6 +234,16 @@ export function PlumChart() {
         tooltipEl.classList.remove(CLS_TOOLTIP_VISIBLE);
     }
 
+    function _fixTooltip(tooltipEl: HTMLElement) {
+        _showTooltip(tooltipEl);
+        _state.fixedTooltips.add(tooltipEl);
+    }
+
+    function _unfixTooltip(tooltipEl: HTMLElement) {
+        _hideTooltip(tooltipEl);
+        _state.fixedTooltips.delete(tooltipEl);
+    }
+
     /**
      * 마우스위치에 맞춰 툴팁 위치를 조정한다.
      * @param tooltipElement 
@@ -282,7 +292,7 @@ export function PlumChart() {
      * @returns 
      */
     function _isTooltipFixed(tooltipContainerEl: HTMLElement) {
-        return _state.fixedTooltipMap.has(tooltipContainerEl);
+        return _state.fixedTooltips.has(tooltipContainerEl);
     }
 
     /**
@@ -297,13 +307,13 @@ export function PlumChart() {
             if (e.target !== containerEl) {
                 return;
             }
-            if (_isTooltipFixed(containerEl))
+            if (_isTooltipFixed(tooltipEl))
                 return;
             _relocateTooltip(tooltipEl, e);
         });
         // 마우스가 엘리먼트를 벗어나면 툴팁을 숨긴다.
         containerEl.addEventListener("mouseleave", (e) => {
-            if (_isTooltipFixed(containerEl))
+            if (_isTooltipFixed(tooltipEl))
                 return;
             _hideTooltip(tooltipEl);
         });
@@ -311,7 +321,7 @@ export function PlumChart() {
         // mouseenter이벤트만 발생하고 mousemove이벤트가 발생하지 않는 경우가 있다. ex) 휠스크롤
         // mouseenter이벤트순간부터 툴팁위치를 조정한다.
         containerEl.addEventListener("mouseenter", (e) => {
-            if (_isTooltipFixed(containerEl))
+            if (_isTooltipFixed(tooltipEl))
                 return;
             _showTooltip(tooltipEl);
             _relocateTooltip(tooltipEl, e);
@@ -319,20 +329,24 @@ export function PlumChart() {
         // 마우스 클릭/더블클릭시 툴팁을 고정한다.
         containerEl.addEventListener(fixEvent, (e) => {
             e.stopPropagation();
-            if (_isTooltipFixed(containerEl)) {
-                _hideTooltip(tooltipEl);
-                _state.fixedTooltipMap.delete(containerEl);
+            if (_isTooltipFixed(tooltipEl)) {
+                _unfixTooltip(tooltipEl);
             } else {
-                _showTooltip(tooltipEl);
-                _state.fixedTooltipMap.set(containerEl, tooltipEl);
+                _fixTooltip(tooltipEl);
             }
         });
-        // 툴팁 클릭시 캔버스 클릭 이벤트가 발생하지 않도록 한다. 캔버스 이동, 툴팁 숨김 기능이 동작하지 않도록 한다.
-        tooltipEl.addEventListener("click", (e) => {
+        containerEl.addEventListener("click", (e) => {
+            // 캔버스 클릭 이벤트 전파를 차단하여 툴팁이 고정해제 되지 않도록 한다.
             e.stopPropagation();
         });
-        // 툴팁에서 마우스 이동 이벤트전파를 중단한다. 툴팁 숨김 기능이 동작하지 않도록 한다.
+
+        tooltipEl.addEventListener("click", (e) => {
+            // 툴팁 클릭시 캔버스 클릭 이벤트가 발생하지 않도록 한다. 캔버스 이동, 툴팁 숨김 기능이 동작하지 않도록 한다.
+            e.stopPropagation();
+        });
+
         tooltipEl.addEventListener("mousemove", (e) => {
+            // 툴팁에서 마우스 이동 이벤트전파를 중단한다. 툴팁 숨김 기능이 동작하지 않도록 한다.
             e.stopPropagation();
         });
     }
@@ -355,7 +369,7 @@ export function PlumChart() {
         closeEl.classList.add(CLS_TOOLTIP_CLOSE);
         closeEl.src = CLOSE_ICON;
         closeEl.addEventListener("click", (e) => {
-            _hideTooltip(tooltipEl);
+            _unfixTooltip(tooltipEl);
         });
         tooltipEl.appendChild(closeEl);
 
@@ -425,7 +439,7 @@ export function PlumChart() {
         closeEl.classList.add(CLS_TOOLTIP_CLOSE);
         closeEl.src = CLOSE_ICON;
         closeEl.addEventListener("click", (e) => {
-            _hideTooltip(tooltipEl);
+            _unfixTooltip(tooltipEl);
         });
         tooltipEl.appendChild(closeEl);
 
@@ -711,10 +725,11 @@ export function PlumChart() {
 
         // 캔버스 클릭시 툴팁을 숨긴다.
         elements.rootElement.addEventListener("click", (e) => {
-            for (const [_, tooltipEl] of _state.fixedTooltipMap.entries()) {
+            console.log("click", e);
+            for (const tooltipEl of _state.fixedTooltips.values()) {
                 _hideTooltip(tooltipEl);
             }
-            _state.fixedTooltipMap.clear();
+            _state.fixedTooltips.clear();
         });
         isMainCanvasCostomized = true;
     }
