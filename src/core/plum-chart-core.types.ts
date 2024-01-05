@@ -1,16 +1,19 @@
 /**
- * 차트 이벤트.
+ * 이벤트 마크 인터페이스
  */
-export interface PointEventBase {
+export interface TimeEvent {
+}
+
+export interface PointEvent extends TimeEvent {
     time: Date;
 }
 
-export interface RangeEventBase {
+export interface RangeEvent extends TimeEvent {
     startTime: Date;
     endTime: Date;
 }
 
-export interface EntityBase {
-    pointEvents: PointEventBase[];
-    rangeEvents: RangeEventBase[];
+export interface Entity {
+    pointEvents: PointEvent[];
+    rangeEvents: RangeEvent[];
 }

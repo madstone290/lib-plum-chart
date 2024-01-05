@@ -3,7 +3,7 @@ import ERROR_IMG_SRC from "@/assets/image/error.svg";
 import WARNING_IMG_SRC from "@/assets/image/warning.svg";
 import { GlobalErrorType, Lot, LotErrorType, SideError, SideErrorType } from "@/data/types";
 import { globalErrors, legends, lotErrorTypes, lotOperationClasses, lotOperationTypes, sideErrorTypes } from "@/data/dummy";
-import { PlumChartData, PlumChartOptions, PointEvent, RangeEvent } from "@/core/plum-chart.types";
+import { PlumChartData, PlumChartOptions } from "@/core/plum-chart.types";
 
 
 console.log("index.ts is running", new Date());
@@ -84,116 +84,87 @@ window.addEventListener("DOMContentLoaded", () => {
         cellWidth: 200,
         maxZoomScale: 50,
         minZoomScale: 0.3,
-    }
-    plumChart.setOptions(options);
+        hasTooltipVisible: (event) => {
+            return true;
+        },
+        hasTooltipShowTime: (event) => {
+            return true;
+        },
+        getEventIconSrc: (event) => {
+            const eventType = (event as any).type;
+            if (eventType === LotErrorType.Quality)
+                return ERROR_IMG_SRC;
+            if (eventType === LotErrorType.Safety)
+                return WARNING_IMG_SRC;
+            if (eventType === SideErrorType.Man)
+                return ERROR_IMG_SRC;
+            if (eventType === SideErrorType.Cost)
+                return WARNING_IMG_SRC;
+            return WARNING_IMG_SRC;
+        },
+        getTooltipTitle: (event) => {
+            const eventType = (event as any).type;
+            return eventType;
+        },
+        getTooltipTextLines: (event) => {
+            const lot = (event as any).lot;
+            if (!lot)
+                return [];
 
+            return [
+                "Lot Number: " + lot.number,
+                "Product: " + lot.product,
+            ];
+        },
+        hasTooltipLazyLoading: (event) => {
+            return true;
+        },
+        getTooltipLazyTextLines: (event) => {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve([
+                        "Lazy: " + new Date(),
+                    ]);
+                }, 500);
+            });
+        },
+        getEventClassName: (event) => {
+            const eventType = (event as any).type;
+            if (eventType === GlobalErrorType.Downtime)
+                return "pl-downtime";
+            if (eventType === GlobalErrorType.Network)
+                return "pl-network";
+            if (lotOperationClasses.has(eventType))
+                return lotOperationClasses.get(eventType)!;
+
+            return "";
+        }
+    }
     const data = {
         legends: legends,
-        entities: lots.filter((value, idx) => idx < 100).map(lot => ({
+        entities: lots.map(lot => ({
             number: lot.number,
             product: lot.product,
-            pointEvents: lot.errors.map(error => {
-                const pointEvent: PointEvent = {
-                    time: error.time,
-                    title: error.type,
-                    icon: error.type === LotErrorType.Quality ? ERROR_IMG_SRC : WARNING_IMG_SRC,
-                    showTooltip: true,
-                    showTime: true,
-                    lines: [
-                        "Lot Number: " + lot.number,
-                        "Product: " + lot.product,
-                    ],
-                    lazyLines: () => {
-                        return new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                const lines = Array.from({ length: 3 }).map(() => "Lazy: " + new Date());
-                                resolve(lines);
-                            }, 500);
-                        });
-                    }
-                }
-                return pointEvent;
-            }),
-            rangeEvents: lot.operations.map(operation => {
-                const rangeEvent: RangeEvent = {
-                    title: operation.type,
-                    startTime: operation.startTime,
-                    endTime: operation.endTime,
-                    className: lotOperationClasses.get(operation.type),
-                    showTooltip: true,
-                    showTime: true,
-                    lines: [
-                        "Lot Number: " + lot.number,
-                        "Product: " + lot.product,
-                    ],
-                    lazyLines: () => {
-                        return new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                const lines = Array.from({ length: 50 }).map(() => "Lazy: " + new Date());
-                                resolve(lines);
-                            }, 500);
-                        });
-                    },
-                }
-                return rangeEvent;
-            })
+            pointEvents: lot.errors,
+            rangeEvents: lot.operations
         })),
-        sidePointEvents: getSideErrors(600, 2400).map(error => {
-            const pointEvent: PointEvent = {
-                time: error.time,
-                title: error.type,
-                icon: error.type === SideErrorType.Man ? ERROR_IMG_SRC : WARNING_IMG_SRC,
-                showTooltip: true,
-                showTime: true,
-                lines: [
-                    "Side Error",
-                ],
-                lazyLines: () => {
-                    return new Promise((resolve, reject) => {
-                        setTimeout(() => {
-                            const lines = Array.from({ length: 5 }).map(() => "Lazy: " + new Date());
-                            resolve(lines);
-                        }, 500);
-                    });
-                }
-            }
-            return pointEvent;
-        }),
-        globalRangeEvents: globalErrors.map(error => {
-            const rangeEvent: RangeEvent = {
-                title: error.type,
-                startTime: error.startTime,
-                endTime: error.endTime,
-                className: error.type === GlobalErrorType.Downtime ? "pl-downtime" : "pl-network",
-                showTooltip: true,
-                showTime: true,
-                lines: [
-                    "Global Error",
-                ],
-                lazyLines: () => {
-                    return new Promise((resolve, reject) => {
-                        setTimeout(() => {
-                            resolve([
-                                "Lazy: " + new Date(),
-                            ]);
-                        }, 500);
-                    });
-                },
-            }
-            return rangeEvent;
-        })
+        sidePointEvents: getSideErrors(600, 2400),
+        globalRangeEvents: globalErrors
     };
-    plumChart.setData(data);
     // display only events in the range of chartStartTime and chartEndTime
     const newData: Partial<PlumChartData> = {
         entities: data.entities.filter((value, idx) => {
             const eventExist = value.rangeEvents.some(operation => {
-                return operation.startTime.getTime() < options.chartStartTime!.getTime() &&
-                    operation.endTime.getTime() > options.chartEndTime!.getTime();
+                console.log(options.chartStartTime, options.chartEndTime, operation.startTime, operation.endTime);
+                return options.chartStartTime!.getTime() < operation.endTime.getTime() &&
+                    operation.startTime.getTime() < options.chartEndTime!.getTime();
+
             });
             return eventExist;
         })
     }
+    plumChart.setOptions(options);
+    plumChart.setData(data);
     plumChart.setData(newData);
     plumChart.render();
 
@@ -224,5 +195,5 @@ window.addEventListener("DOMContentLoaded", () => {
         plumChart.setData(newData);
         plumChart.renderCanvas();
 
-    }, 1000);
+    }, 500);
 });

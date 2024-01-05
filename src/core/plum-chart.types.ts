@@ -1,5 +1,5 @@
 import { CanvasRenderType, ControllerLocation } from "./plum-chart-core";
-import { EntityBase, PointEventBase, RangeEventBase } from "./plum-chart-core.types";
+import { Entity, PointEvent, RangeEvent, TimeEvent } from "./plum-chart-core.types";
 
 export enum SortDirection {
     ASC = "asc",
@@ -32,92 +32,6 @@ export interface Legend {
     location?: "left" | "right";
 }
 
-/**
- * 점 이벤트
- */
-export interface PointEvent extends PointEventBase {
-    /**
-     * 이벤트 시간
-     */
-    time: Date;
-    /**
-     * 이벤트 아이콘
-     */
-    icon: string;
-    /**
-    * css 클래스명
-    */
-    className?: string;
-    /**
-     * 이벤트 제목
-     */
-    title: string;
-    /**
-     * 이벤트 추가정보
-     */
-    lines: string[];
-    /**
-    * 이벤트 추가정보. 레이지 로딩 적용.
-    * @returns 
-    */
-    lazyLines?: () => Promise<string[]>;
-    /**
-     * 툴팁 표시 여부
-     */
-    showTooltip: boolean;
-    /**
-     * 툴팁에 시간 표시 여부
-     */
-    showTime: boolean;
-}
-
-/**
- * 범위 이벤트
- */
-export interface RangeEvent extends RangeEventBase {
-    /**
-     * 이벤트 시작시간
-     */
-    startTime: Date;
-    /**
-     * 이벤트 종료시간
-     */
-    endTime: Date;
-    /**
-     * css 클래스명
-     */
-    className?: string;
-    /**
-     * 이벤트 색상
-     */
-    color?: string;
-    /**
-     * 이벤트 제목
-     */
-    title: string;
-    /**
-     * 이벤트 추가정보
-     */
-    lines: string[];
-    /**
-     * 이벤트 추가정보. 레이지 로딩 적용.
-     * @returns 
-     */
-    lazyLines?: () => Promise<string[]>;
-    /**
-     * 툴팁 표시 여부
-     */
-    showTooltip: boolean;
-    /**
-     * 툴팁에 시간 표시 여부
-     */
-    showTime: boolean;
-}
-
-export interface Entity extends EntityBase {
-    pointEvents: PointEvent[];
-    rangeEvents: RangeEvent[];
-}
 
 export interface GridColumn {
     field: string,
@@ -130,6 +44,16 @@ export interface GridColumnSort<T> {
 }
 
 export interface PlumChartOptions {
+    getEventColor<T extends TimeEvent>(event: T): string;
+    getTooltipTitle<T extends TimeEvent>(event: T): string;
+    hasTooltipVisible<T extends TimeEvent>(event: T): boolean;
+    getEventIconSrc<T extends TimeEvent>(event: T): string;
+    getEventClassName<T extends TimeEvent>(event: T): string;
+    getTooltipLazyTextLines<T extends TimeEvent>(event: T): Promise<string[]>;
+    hasTooltipLazyLoading<T extends TimeEvent>(event: T): boolean;
+    getTooltipTextLines<T extends TimeEvent>(event: T): string[];
+    hasTooltipShowTime<T extends TimeEvent>(event: T): boolean;
+
     renderMode: CanvasRenderType,
     useEventHoverColor: boolean,
     eventHoverColor: string,

@@ -1,8 +1,8 @@
 import "@/assets/css/plum-chart.css";
 import dayjs from "dayjs";
-import { EntityBase, PointEventBase, RangeEventBase } from "./plum-chart-core.types";
+import { Entity, PointEvent, RangeEvent } from "./plum-chart-core.types";
 import { ChartOptions, CoreChart } from "./plum-chart-core";
-import { PlumChartOptions, PlumChartData, SortDirection, PointEvent, RangeEvent, PlumChartState } from "./plum-chart.types";
+import { PlumChartOptions, PlumChartData, SortDirection, PlumChartState } from "./plum-chart.types";
 
 const CLS_ROOT_CONTAINER = "pl-root-container";
 const CLS_LEGEND_CONTAINER = "pl-legend-container";
@@ -72,6 +72,33 @@ export function PlumChart() {
         renderCanvasColumn: _renderHeaderCell,
         renderPointEventTooltip: _renderDefaultPointEventTooltip,
         renderRangeEventTooltip: _renderDefaultRangeEventTooltip,
+        getEventColor: (event) => {
+            return "";
+        },
+        hasTooltipLazyLoading: (event) => {
+            return false;
+        },
+        hasTooltipShowTime: (event) => {
+            return true;
+        },
+        getEventIconSrc: (event) => {
+            return "";
+        },
+        getEventClassName: (event) => {
+            return "";
+        },
+        getTooltipTitle: (event) => {
+            return "";
+        },
+        getTooltipTextLines: (event) => {
+            return [];
+        },
+        getTooltipLazyTextLines: (event) => {
+            return Promise.resolve([]);
+        },
+        hasTooltipVisible: (event) => {
+            return true;
+        },
     }
 
     const _data: PlumChartData = {
@@ -324,52 +351,60 @@ export function PlumChart() {
     function _renderDefaultPointEventTooltip(event: PointEvent, eventEl: HTMLElement, tooltipEl: HTMLElement) {
         const titleEl = document.createElement("div");
         titleEl.classList.add(CLS_TOOLTIP_TITLE);
-        titleEl.innerText = event.title;
+        const eventTitle = _options.getTooltipTitle(event);
+        titleEl.innerText = eventTitle;
         tooltipEl.appendChild(titleEl);
 
-        if (event.showTime) {
+        const showTime = _options.hasTooltipShowTime(event);
+        if (showTime) {
             const timeEl = document.createElement("div");
             timeEl.innerText = _options.formatTime(event.time);
             tooltipEl.appendChild(timeEl);
         }
-
-        for (const line of event.lines) {
+        const textLines = _options.getTooltipTextLines(event);
+        for (const line of textLines) {
             _renderLineElement(line, tooltipEl);
         }
 
-        let lazyLoaded = false;
-        eventEl.addEventListener("mouseenter", async (e) => {
-            if (!event.lazyLines)
-                return;
-            if (lazyLoaded)
-                return;
-            lazyLoaded = true;
-            const lazyLines = await event.lazyLines();
-            for (const line of lazyLines) {
-                _renderLineElement(line, tooltipEl);
-            }
-            _relocateTooltip(tooltipEl);
-        });
+        const hasLazyLoading = _options.hasTooltipLazyLoading(event);
+        if (hasLazyLoading) {
+            let lazyLoaded = false;
+            eventEl.addEventListener("mouseenter", async (e) => {
+                if (lazyLoaded)
+                    return;
+                lazyLoaded = true;
+                const lazyTextLines = await _options.getTooltipLazyTextLines(event);
+                for (const line of lazyTextLines) {
+                    _renderLineElement(line, tooltipEl);
+                }
+                _relocateTooltip(tooltipEl);
+            });
+        }
+
     }
 
     async function _renderPointEvent(event: PointEvent, canvasEl: HTMLElement, containerEl: HTMLElement, classNames: { img: string }) {
         const imgEl = document.createElement("img");
         imgEl.classList.add(classNames.img);
-        imgEl.src = event.icon;
-        if (event.className) {
-            imgEl.classList.add(event.className);
+        imgEl.src = _options.getEventIconSrc(event);
+
+        const className = _options.getEventClassName(event);
+        if (className) {
+            imgEl.classList.add(className);
         }
         containerEl.appendChild(imgEl);
 
-        const tooltipEl = document.createElement("div");
-        tooltipEl.classList.add(CLS_TOOLTIP);
-        canvasEl.appendChild(tooltipEl);
+        const showTooltip = _options.hasTooltipVisible(event);
+        if (showTooltip) {
+            const tooltipEl = document.createElement("div");
+            tooltipEl.classList.add(CLS_TOOLTIP);
+            canvasEl.appendChild(tooltipEl);
 
-        _options.renderPointEventTooltip(event, imgEl, tooltipEl);
+            _options.renderPointEventTooltip(event, imgEl, tooltipEl);
 
-        if (event.showTooltip) {
             _addTooltip(imgEl, tooltipEl);
         }
+
         if (_options.useEventHoverColor) {
             _setEventHoverColor(imgEl);
         }
@@ -378,10 +413,11 @@ export function PlumChart() {
     function _renderDefaultRangeEventTooltip(event: RangeEvent, eventEl: HTMLElement, tooltipEl: HTMLElement) {
         const titleEl = document.createElement("div");
         titleEl.classList.add(CLS_TOOLTIP_TITLE);
-        titleEl.innerText = event.title;
+        titleEl.innerText = _options.getTooltipTitle(event);
         tooltipEl.appendChild(titleEl);
 
-        if (event.showTime) {
+        const showTime = _options.hasTooltipShowTime(event);
+        if (showTime) {
             const startTime = _options.formatTime(event.startTime);
             const endTime = _options.formatTime(event.endTime);
             const timeRange = _options.formatTimeRange(event.startTime, event.endTime);
@@ -390,52 +426,57 @@ export function PlumChart() {
             tooltipEl.appendChild(timeEl);
         }
 
-        for (const line of event.lines) {
+        const textLines = _options.getTooltipTextLines(event);
+        for (const line of textLines) {
             _renderLineElement(line, tooltipEl);
         }
 
-        let lazyLoaded = false;
-        eventEl.addEventListener("mouseenter", async (e) => {
-            if (!event.lazyLines)
-                return;
-            if (lazyLoaded)
-                return;
-            lazyLoaded = true;
-            const lazyLines = await event.lazyLines();
-            for (const line of lazyLines) {
-                _renderLineElement(line, tooltipEl);
-            }
-            _relocateTooltip(tooltipEl);
-        });
+        const hasLazyLoading = _options.hasTooltipLazyLoading(event);
+        if (hasLazyLoading) {
+            let lazyLoaded = false;
+            eventEl.addEventListener("mouseenter", async (e) => {
+                if (lazyLoaded)
+                    return;
+                lazyLoaded = true;
+                const lazyLines = await _options.getTooltipLazyTextLines(event);
+                for (const line of lazyLines) {
+                    _renderLineElement(line, tooltipEl);
+                }
+                _relocateTooltip(tooltipEl);
+            });
+        }
     }
 
 
     async function _renderRangeEvent(event: RangeEvent, canvasEl: HTMLElement, containerEl: HTMLElement, classNames: { box: string }) {
         const boxEl = document.createElement("div");
         boxEl.classList.add(classNames.box);
-        if (event.className) {
-            boxEl.classList.add(event.className);
+        const className = _options.getEventClassName(event);
+        if (className) {
+            boxEl.classList.add(className);
         }
-        if (event.color) {
-            boxEl.style.backgroundColor = event.color;
-        }
-        if (event.className) {
-            boxEl.classList.add(event.className);
+        const eventColor = _options.getEventColor(event);
+        if (eventColor) {
+            boxEl.style.backgroundColor = eventColor;
         }
         containerEl.appendChild(boxEl);
 
-        const tooltipEl = document.createElement("div");
-        tooltipEl.classList.add(CLS_TOOLTIP);
-        canvasEl.appendChild(tooltipEl);
+        const tooltipVisible = _options.hasTooltipVisible(event);
+        if (tooltipVisible) {
+            const tooltipEl = document.createElement("div");
+            tooltipEl.classList.add(CLS_TOOLTIP);
+            canvasEl.appendChild(tooltipEl);
 
-        _options.renderRangeEventTooltip(event, boxEl, tooltipEl);
+            _options.renderRangeEventTooltip(event, boxEl, tooltipEl);
 
-        if (event.showTooltip) {
             _addTooltip(boxEl, tooltipEl);
         }
         if (_options.useEventHoverColor) {
             _setEventHoverColor(boxEl);
         }
+
+
+
     }
 
     /**
@@ -444,8 +485,8 @@ export function PlumChart() {
      * @param canvasEl 
      * @param containerEl 
      */
-    async function _renderEntityPointEvent(event: PointEventBase, canvasEl: HTMLElement, containerEl: HTMLElement) {
-        _renderPointEvent(event as PointEvent, canvasEl, containerEl, {
+    async function _renderEntityPointEvent(event: PointEvent, canvasEl: HTMLElement, containerEl: HTMLElement) {
+        _renderPointEvent(event, canvasEl, containerEl, {
             img: CLS_ENTITY_POINT_EVENT,
         });
     };
@@ -456,8 +497,8 @@ export function PlumChart() {
      * @param canvasEl 
      * @param containerEl 
      */
-    async function _renderEntityRangeEvent(event: RangeEventBase, canvasEl: HTMLElement, containerEl: HTMLElement) {
-        _renderRangeEvent(event as RangeEvent, canvasEl, containerEl, {
+    async function _renderEntityRangeEvent(event: RangeEvent, canvasEl: HTMLElement, containerEl: HTMLElement) {
+        _renderRangeEvent(event, canvasEl, containerEl, {
             box: CLS_ENTITY_RANGE_EVENT,
         });
     };
@@ -468,9 +509,9 @@ export function PlumChart() {
      * @param canvasEl 
      * @param containerEl 
      */
-    function _renderSidePointEvent(event: PointEventBase, canvasEl: HTMLElement, containerEl: HTMLElement) {
+    function _renderSidePointEvent(event: PointEvent, canvasEl: HTMLElement, containerEl: HTMLElement) {
         // 엔티티 점 이벤트와 동일하게 렌더링한다.
-        _renderEntityPointEvent(event as PointEvent, canvasEl, containerEl);
+        _renderEntityPointEvent(event, canvasEl, containerEl);
     };
 
     /**
@@ -479,8 +520,8 @@ export function PlumChart() {
      * @param canvasEl 
      * @param containerEl 
      */
-    async function _renderGlobalRangeEvent(event: RangeEventBase, canvasEl: HTMLElement, containerEl: HTMLElement) {
-        _renderRangeEvent(event as RangeEvent, canvasEl, containerEl, {
+    async function _renderGlobalRangeEvent(event: RangeEvent, canvasEl: HTMLElement, containerEl: HTMLElement) {
+        _renderRangeEvent(event, canvasEl, containerEl, {
             box: CLS_GLOBAL_RANGE_EVENT
         });
     };
@@ -498,7 +539,6 @@ export function PlumChart() {
     }
 
     function _renderGridColumns(containerEl: HTMLElement) {
-        console.log("renderGridColumns");
         const gridColumnsEl = document.createElement("div");
         gridColumnsEl.classList.add(CLS_GRID_COLUMNS);
         containerEl.appendChild(gridColumnsEl);
@@ -511,7 +551,6 @@ export function PlumChart() {
             _state.gridColumnIconMap.set(column, iconEl);
         }
 
-        console.log("_state.gridColumnMap", _state.gridColumnMap);
         for (const [column, columnEl] of _state.gridColumnMap.entries()) {
             columnEl.addEventListener("click", (e) => {
                 const selectedField = column.field;
@@ -620,7 +659,7 @@ export function PlumChart() {
      * @param entity 
      * @param containerEl 
      */
-    function _renderGridRow(index: number, entity: EntityBase, containerEl: HTMLElement): void {
+    function _renderGridRow(index: number, entity: Entity, containerEl: HTMLElement): void {
         containerEl.classList.add(CLS_GRID_ROW);
         console.log("renderGridRow", index, entity, containerEl);
         let cellIndex = 0;
@@ -719,11 +758,8 @@ export function PlumChart() {
     }
 
     function setOptions(options: Partial<PlumChartOptions>) {
-        for (const key in options) {
-            if ((options as any)[key] != null) {
-                (_options as any)[key] = (options as any)[key];
-            }
-        }
+        Object.assign(_options, options);
+
         const coreOptions: Partial<ChartOptions> = {
             renderMode: _options.renderMode,
             gridTitle: _options.gridTitle,

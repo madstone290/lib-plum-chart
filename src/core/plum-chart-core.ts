@@ -1,5 +1,5 @@
 import "@/assets/css/plum-chart-core.css"
-import { EntityBase, PointEventBase, RangeEventBase } from "./plum-chart-core.types";
+import { Entity, PointEvent, RangeEvent } from "./plum-chart-core.types";
 export let DEBUG = false;
 export const CanvasRenderTypes = ["scroll", "intersection", "eager"] as const;
 export type CanvasRenderType = typeof CanvasRenderTypes[number];
@@ -42,7 +42,7 @@ interface EntityRow {
     /**
      * 엔티티
      */
-    entity: EntityBase;
+    entity: Entity;
     /**
      * 테이블 행의 컨테이너 엘리먼트
      */
@@ -69,17 +69,17 @@ export type ControllerLocation = "topLeft" | "topRight" | "bottomLeft" | "bottom
 
 export interface ChartData {
 
-    entities: EntityBase[];
+    entities: Entity[];
 
     /**
      * 사이드캔버스에 표시할 이벤트
      */
-    sidePointEvents: PointEventBase[];
+    sidePointEvents: PointEvent[];
 
     /**
      * 메인 캔버스에 표시할 글로벌 포인트 이벤트 목록.
      */
-    globalRangeEvents: RangeEventBase[];
+    globalRangeEvents: RangeEvent[];
 }
 
 export interface ChartOptions {
@@ -161,11 +161,11 @@ export interface ChartOptions {
     renderCanvasTitle: (containerEl: HTMLElement, title: string) => void;
     renderGridTitle: (containerEl: HTMLElement, title: string) => void;
     renderGridColumns: (containerEl: HTMLElement) => void;
-    renderGridRow: (idx: number, entity: EntityBase, containerEl: HTMLElement) => void;
-    renderSidePointEvent: (event: PointEventBase, canvasEl: HTMLElement, containerEl: HTMLElement) => void;
-    renderEntityPointEvent: (event: PointEventBase, canvasEl: HTMLElement, containerEl: HTMLElement) => void;
-    renderEntityRangeEvent: (event: RangeEventBase, canvasEl: HTMLElement, containerEl: HTMLElement) => void;
-    renderGlobalRangeEvent: (event: RangeEventBase, canvasEl: HTMLElement, containerEl: HTMLElement) => void;
+    renderGridRow: (idx: number, entity: Entity, containerEl: HTMLElement) => void;
+    renderSidePointEvent: (event: PointEvent, canvasEl: HTMLElement, containerEl: HTMLElement) => void;
+    renderEntityPointEvent: (event: PointEvent, canvasEl: HTMLElement, containerEl: HTMLElement) => void;
+    renderEntityRangeEvent: (event: RangeEvent, canvasEl: HTMLElement, containerEl: HTMLElement) => void;
+    renderGlobalRangeEvent: (event: RangeEvent, canvasEl: HTMLElement, containerEl: HTMLElement) => void;
 }
 
 interface ChartState {
@@ -486,22 +486,22 @@ export const CoreChart = function () {
         renderGridColumns: (containerEl: HTMLElement) => {
             containerEl.innerText = "Column";
         },
-        renderGridRow: (idx: number, entity: EntityBase, containerEl: HTMLElement) => {
+        renderGridRow: (idx: number, entity: Entity, containerEl: HTMLElement) => {
             containerEl.innerText = "Row #" + idx;
         },
         renderCanvasTitle: (containerEl: HTMLElement, title: string) => {
             containerEl.innerText = title;
         },
-        renderSidePointEvent: (event: PointEventBase, canvasEl: HTMLElement, containerEl: HTMLElement) => {
+        renderSidePointEvent: (event: PointEvent, canvasEl: HTMLElement, containerEl: HTMLElement) => {
             containerEl.style.backgroundColor = "yellow";
         },
-        renderEntityPointEvent: (event: PointEventBase, canvasEl: HTMLElement, containerEl: HTMLElement) => {
+        renderEntityPointEvent: (event: PointEvent, canvasEl: HTMLElement, containerEl: HTMLElement) => {
             containerEl.style.backgroundColor = "red";
         },
-        renderEntityRangeEvent: (event: RangeEventBase, canvasEl: HTMLElement, containerEl: HTMLElement) => {
+        renderEntityRangeEvent: (event: RangeEvent, canvasEl: HTMLElement, containerEl: HTMLElement) => {
             containerEl.style.backgroundColor = "green";
         },
-        renderGlobalRangeEvent: (event: RangeEventBase, canvasEl: HTMLElement, containerEl: HTMLElement) => {
+        renderGlobalRangeEvent: (event: RangeEvent, canvasEl: HTMLElement, containerEl: HTMLElement) => {
             containerEl.style.backgroundColor = "blue";
         },
     }
@@ -1185,7 +1185,7 @@ export const CoreChart = function () {
         }
     }
 
-    function _renderSidePointEvent(event: PointEventBase) {
+    function _renderSidePointEvent(event: PointEvent) {
         const eventTime = event.time;
         if (!isTimeInRange(eventTime))
             return;
@@ -1324,7 +1324,7 @@ export const CoreChart = function () {
      * @param entity 
      * @returns 
      */
-    function _createEntityContainer(index: number, entity: EntityBase) {
+    function _createEntityContainer(index: number, entity: Entity) {
         const containerEl = document.createElement("div");
         containerEl.classList.add(CLS_ENTITY_TABLE_ITEM);
         containerEl.addEventListener("mouseenter", (e) => {
@@ -1356,7 +1356,7 @@ export const CoreChart = function () {
      * @param entity 
      * @returns 
      */
-    function _renderEntityContainer(index: number, entity: EntityBase) {
+    function _renderEntityContainer(index: number, entity: Entity) {
         const containerEl = _createEntityContainer(index, _data.entities[index]);
         _elements.gridBox.appendChild(containerEl);
 
@@ -1472,7 +1472,7 @@ export const CoreChart = function () {
      * @param entity 
      * @returns 
      */
-    function _getFirstVisibleEventTime(entity: EntityBase): Date | null {
+    function _getFirstVisibleEventTime(entity: Entity): Date | null {
         const visibleRangeEvents = _getVisibleRangeEvents(entity.rangeEvents);
         let rangeEvtTime = null;
         if (0 < visibleRangeEvents.length) {
@@ -1504,14 +1504,14 @@ export const CoreChart = function () {
      * @param rangeEvents 
      * @returns 
      */
-    function _getVisibleRangeEvents(rangeEvents: RangeEventBase[]) {
+    function _getVisibleRangeEvents(rangeEvents: RangeEvent[]) {
         if (rangeEvents == null || rangeEvents.length == 0)
             return [];
 
-        return rangeEvents.filter((evt: RangeEventBase) => {
+        return rangeEvents.filter((evt: RangeEvent) => {
             return _state.chartRenderStartTime.valueOf() <= evt.startTime.valueOf()
                 && evt.startTime.valueOf() <= _state.chartRenderEndTime.valueOf();
-        }).sort((a: RangeEventBase, b: RangeEventBase) => {
+        }).sort((a: RangeEvent, b: RangeEvent) => {
             return a.startTime.valueOf() - b.startTime.valueOf();
         });
     }
@@ -1521,24 +1521,24 @@ export const CoreChart = function () {
      * @param pointEvents 
      * @returns 
      */
-    function _getVisiblePointEvents(pointEvents: PointEventBase[]) {
+    function _getVisiblePointEvents(pointEvents: PointEvent[]) {
         if (pointEvents == null || pointEvents.length == 0)
             return [];
 
-        return pointEvents.filter((evt: PointEventBase) => {
+        return pointEvents.filter((evt: PointEvent) => {
             return _state.chartRenderStartTime.valueOf() <= evt.time.valueOf()
                 && evt.time.valueOf() <= _state.chartRenderEndTime.valueOf();
-        }).sort((a: PointEventBase, b: PointEventBase) => {
+        }).sort((a: PointEvent, b: PointEvent) => {
             return a.time.valueOf() - b.time.valueOf();
         });
     }
 
-    function _renderEntityEvents(entity: EntityBase, entityRow: EntityRow) {
+    function _renderEntityEvents(entity: Entity, entityRow: EntityRow) {
         _renderEntityPointEvents(entity, entityRow);
         _renderEntityRangeEvents(entity, entityRow);
     }
 
-    function _renderEntityPointEvents(entity: EntityBase, entityRow: EntityRow) {
+    function _renderEntityPointEvents(entity: Entity, entityRow: EntityRow) {
         let pointEvents = entity.pointEvents;
         if (_options.maxRenderCountPerRow < entity.pointEvents.length) {
             pointEvents = _filterEvenlySpacedEvents(entity.pointEvents, _options.maxRenderCountPerRow);
@@ -1550,7 +1550,7 @@ export const CoreChart = function () {
         }
     }
 
-    function _renderEntityRangeEvents(entity: EntityBase, entityRow: EntityRow) {
+    function _renderEntityRangeEvents(entity: Entity, entityRow: EntityRow) {
         let rangeEvents = entity.rangeEvents;
         if (_options.maxRenderCountPerRow < entity.rangeEvents.length) {
             rangeEvents = _filterEvenlySpacedEvents(entity.rangeEvents, _options.maxRenderCountPerRow);
@@ -1573,7 +1573,7 @@ export const CoreChart = function () {
         }
     }
 
-    function _renderEntityPointEvent(event: PointEventBase, entityRow: EntityRow) {
+    function _renderEntityPointEvent(event: PointEvent, entityRow: EntityRow) {
         const eventTime = event.time;
         const rowIndex = entityRow.index;
         if (!isTimeInRange(eventTime))
@@ -1635,7 +1635,7 @@ export const CoreChart = function () {
         };
     }
 
-    function _renderEntityRangeEvent(event: RangeEventBase, entityRow: EntityRow) {
+    function _renderEntityRangeEvent(event: RangeEvent, entityRow: EntityRow) {
         const startTime = event.startTime;
         const endTime = event.endTime;
         const rowIndex = entityRow.index;
@@ -1664,7 +1664,7 @@ export const CoreChart = function () {
         if (events.length <= maxCount)
             return events;
 
-        const filteredEvents: RangeEventBase[] = [];
+        const filteredEvents: RangeEvent[] = [];
         const step = events.length / maxCount;
         for (let current = 0; current < events.length; current += step) {
             const index = Math.floor(current);
@@ -1695,7 +1695,7 @@ export const CoreChart = function () {
         }
     }
 
-    function _renderGlobalRangeEvent(event: RangeEventBase) {
+    function _renderGlobalRangeEvent(event: RangeEvent) {
         const eventStartTime = event.startTime;
         const eventEndTime = event.endTime;
         if (!isTimeInRange(eventStartTime, eventEndTime))
