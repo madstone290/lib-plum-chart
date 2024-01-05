@@ -120,7 +120,8 @@ export function PlumChart() {
         sortColumnField: "",
         containerEl: NULL_ELEMENT,
         legendsEl: NULL_ELEMENT,
-        fixedTooltips: new Set()
+        fixedTooltips: new Set(),
+        elementCustomized: false
     };
 
     /**
@@ -712,26 +713,21 @@ export function PlumChart() {
         containerEl.appendChild(titleEl);
     }
 
-    let isMainCanvasCostomized = false;
-
     /**
      * 타임라인 차트 엘리먼트를 커스터마이징한다.
      * @param elements
      * @returns 
      */
     function _customizeElements(elements: { rootElement: HTMLElement }) {
-        if (isMainCanvasCostomized)
+        if (_state.elementCustomized)
             return;
-
+        _state.elementCustomized = true;
         // 캔버스 클릭시 툴팁을 숨긴다.
         elements.rootElement.addEventListener("click", (e) => {
-            console.log("click", e);
             for (const tooltipEl of _state.fixedTooltips.values()) {
-                _hideTooltip(tooltipEl);
+                _unfixTooltip(tooltipEl);
             }
-            _state.fixedTooltips.clear();
         });
-        isMainCanvasCostomized = true;
     }
 
     function _createLegendEl() {
@@ -877,7 +873,7 @@ export function PlumChart() {
     }
 
     function render() {
-        isMainCanvasCostomized = false;
+        _state.elementCustomized = false;
         _renderLegends();
         _coreChart.render();
     }

@@ -147,6 +147,11 @@ export interface PlumChartState {
      * 고정된 툴팁 목록. key: 툴팁 컨테이너 엘리먼트, value: 툴팁 엘리먼트
      */
     fixedTooltips: Set<HTMLElement>,
+
+    /**
+     * 엘리먼트 커스텀함수가 호출되었는지 여부
+     */
+    elementCustomized: boolean,
 }
 
 export interface PlumChartData {
