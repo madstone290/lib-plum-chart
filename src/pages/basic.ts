@@ -77,6 +77,8 @@ window.addEventListener("DOMContentLoaded", () => {
             maxZoomScale: 20,
             minZoomScale: 1,
             zoomScale: 5,
+            scrollLeft: 700,
+            scrollTop: 700,
         },
         useEventHoverColor: false,
         eventHoverColor: '#ccc',
