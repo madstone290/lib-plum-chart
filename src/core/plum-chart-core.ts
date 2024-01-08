@@ -225,17 +225,13 @@ export const CoreChart = function () {
     const _state: ChartState = {
         chartHeight: 0,
         chartWidth: 0,
-        currentZoomScale: 1,
-        prevZoomDirection: null,
         cellContentHeight: 0,
         lastZoomTime: new Date(),
-        accelResetTimeout: 300,
         cellWidth: _options.cellWidth!,
         cellHeight: _options.cellHeight!,
         canvasColumnCount: 0,
-        zoomVelocity: 0,
-        defaultZoomStep: 0.1,
         originalCellWidth: 0,
+        zoomChangeRate: 0.2,
         originalCellHeight: 0,
         chartRenderStartTime: _options.chartStartTime,
         chartRenderEndTime: _options.chartEndTime,
@@ -1194,19 +1190,19 @@ export const CoreChart = function () {
      */
     function _getFirstVisibleEventTime(entity: Entity): Date | null {
         const visibleRangeEvents = _getVisibleRangeEvents(entity.rangeEvents);
-        let rangeEvtTime = null;
+        let rangeEvtTime: Date | null = null;
         if (0 < visibleRangeEvents.length) {
             // 현재 화면에 보이는 엔티티의 가장 빠른 이벤트 시간을 찾는다.
             rangeEvtTime = visibleRangeEvents[0].startTime;
         }
 
         const visiblePointEvents = _getVisiblePointEvents(entity.pointEvents);
-        let pointEvtTime = null;
+        let pointEvtTime: Date | null = null;
         if (0 < visiblePointEvents.length) {
             pointEvtTime = visiblePointEvents[0].time;
         }
 
-        let evtStartTime = null;
+        let evtStartTime: Date | null = null;
         if (rangeEvtTime != null && pointEvtTime != null) {
             evtStartTime = rangeEvtTime < pointEvtTime ? rangeEvtTime : pointEvtTime;
         }
@@ -1438,27 +1434,13 @@ export const CoreChart = function () {
     }
 
     function _zoomIn(pivotPointX?: number, pivotPointY?: number) {
-        const shouldReset = _state.prevZoomDirection == "out" ||
-            _state.accelResetTimeout < new Date().valueOf() - _state.lastZoomTime.valueOf();
-        if (shouldReset) {
-            _state.zoomVelocity = 0;
-        }
-        _state.zoomVelocity += _state.defaultZoomStep;
-        const nextZoomScale = _options.zoomScale + _state.zoomVelocity;
+        const nextZoomScale = _options.zoomScale * (1 + _state.zoomChangeRate);
         _zoom(nextZoomScale, pivotPointX, pivotPointY);
-        _state.prevZoomDirection = "in";
     }
 
     function _zoomOut(pivotPointX?: number, pivotPointY?: number) {
-        const shouldReset = _state.prevZoomDirection == "in" ||
-            _state.accelResetTimeout < new Date().valueOf() - _state.lastZoomTime.valueOf();
-        if (shouldReset) {
-            _state.zoomVelocity = 0;
-        }
-        _state.zoomVelocity -= _state.defaultZoomStep;
-        const nextZoomScale = _options.zoomScale + _state.zoomVelocity;
+        const nextZoomScale = _options.zoomScale * (1 - _state.zoomChangeRate);
         _zoom(nextZoomScale, pivotPointX, pivotPointY);
-        _state.prevZoomDirection = "out";
     }
 
     function _zoom(scale: number, pivotPointX?: number, pivotPointY?: number) {
@@ -1468,7 +1450,6 @@ export const CoreChart = function () {
             scale = _options.maxZoomScale;
         if (scale === _options.zoomScale)
             return;
-
         _options.zoomScale = scale;
 
         // 줌 후 스크롤 위치 계산

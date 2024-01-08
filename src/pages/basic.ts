@@ -74,7 +74,7 @@ window.addEventListener("DOMContentLoaded", () => {
             chartEndTime: new Date(2024, 0, 1, 24, 0, 0, 0),
             columnAutoWidth: true,
             cellWidth: 50,
-            maxZoomScale: 20,
+            maxZoomScale: 50,
             minZoomScale: 1,
             zoomScale: 5,
             scrollLeft: 700,

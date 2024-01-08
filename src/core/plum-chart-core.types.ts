@@ -221,7 +221,6 @@ export interface ChartState {
 
     chartWidth: number;
 
-
     /**
      * 현재 셀 너비(px)
      */
@@ -237,52 +236,40 @@ export interface ChartState {
      */
     canvasColumnCount: number;
 
-    currentZoomScale: number;
-
+    /**
+     * 셀 컨텐츠 영역 높이
+     */
     cellContentHeight: number;
-
-    /**
-     * 이전 줌 방향. 줌 방향이 바뀌면 가속도를 초기화한다.
-     */
-    prevZoomDirection: null | "in" | "out";
-
-    /**
-     * 줌 가속 초기화 시간(밀리초)
-     */
-    accelResetTimeout: number;
 
     /**
      * 최근 줌 시간. 줌 이전에 렌더링된 엘리먼트는 새로 렌더링한다.
      */
     lastZoomTime: Date;
-
+    
     /**
      * 차트 렌더링 시작 시간. 패딩을 포함한 시간.
      */
     chartRenderStartTime: Date;
+   
     /**
      * 차트 렌더링 종료 시간. 패딩을 포함한 시간.
      */
     chartRenderEndTime: Date;
-
-
+    
     /**
     * 원본 셀 너비.
     */
     originalCellWidth: number;
+    
     /**
      * 원본 셀 높이.
      */
     originalCellHeight: number;
 
     /**
-     * 기본 줌 스텝.
+     * 줌 변경 비율. (0, 1) 사이의 값. 0에 가까울수록 줌 속도가 느리다.
      */
-    defaultZoomStep: number;
-    /**
-     * 현재 줌 속도
-     */
-    zoomVelocity: number;
+    zoomChangeRate: number;
 
     /**
      * 렌더링된 캔버스 수직경계 엘리먼트 목록
@@ -313,7 +300,6 @@ export interface ChartState {
      * 사이드캔버스 포인트 이벤트 엘리먼트 목록
      */
     sidePointEventItems: Array<PointEventItem>;
-
 
     /**
      * 글로벌 레인지 이벤트 엘리먼트 목록
