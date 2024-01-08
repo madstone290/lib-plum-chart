@@ -800,6 +800,7 @@ export function PlumChart() {
             cellHeight: _options.cellHeight,
             mainRangeContentRatio: _options.mainRangeContentRatio,
             mainPointContentRatio: _options.mainPointContentRatio,
+            minZoomScale: _options.minZoomScale,
             maxZoomScale: _options.maxZoomScale,
             hasHorizontalLine: _options.hasHorizontalLine,
             hasVerticalLine: _options.hasVerticalLine,
