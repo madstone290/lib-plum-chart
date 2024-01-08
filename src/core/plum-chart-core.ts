@@ -167,6 +167,8 @@ export const CoreChart = function () {
         maxZoomScale: 5,
         minZoomScale: 1,
         zoomScale: 1,
+        scrollLeft: 0,
+        scrollTop: 0,
         cellMinutes: 30,
         cellWidth: 100,
         cellHeight: 50,
