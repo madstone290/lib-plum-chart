@@ -346,6 +346,8 @@ export const CoreChart = function () {
 
         // 컨테이너 크기에 맞춰 차트 크기를 조정한다.
         _setChartSize(container.clientWidth, container.clientHeight);
+
+        console.info("PlumChart created.");
     }
 
     function _setChartSize(width: number, height: number) {
@@ -360,7 +362,6 @@ export const CoreChart = function () {
         css.setCellHeight(height);
         css.setMainRangeContentHeight(_calcMainRangeContentHeight());
         css.setMainPointContentHeight(_calcMainPointContentHeight());
-        console.log("dfdf", height, _calcMainPointContentHeight())
     }
 
     /**
@@ -684,6 +685,8 @@ export const CoreChart = function () {
         _initCanvasState();
         renderCanvas();
         _startResizeObserver();
+
+        console.info("PlumChart rendered.");
     }
 
     function renderCanvas() {

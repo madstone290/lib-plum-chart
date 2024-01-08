@@ -5,9 +5,6 @@ import { GlobalErrorType, Lot, LotErrorType, SideError, SideErrorType } from "@/
 import { globalErrors, legends, lotErrorTypes, lotOperationClasses, lotOperationTypes, sideErrorTypes } from "@/data/dummy";
 import { PlumChartData, PlumChartOptions } from "@/core/plum-chart.types";
 
-
-console.log("index.ts is running", new Date());
-
 const getRandom = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
 
 const lots: Lot[] = [];
@@ -155,7 +152,6 @@ window.addEventListener("DOMContentLoaded", () => {
     const newData: Partial<PlumChartData> = {
         entities: data.entities.filter((value, idx) => {
             const eventExist = value.rangeEvents.some(operation => {
-                console.log(options.chartStartTime, options.chartEndTime, operation.startTime, operation.endTime);
                 return options.chartStartTime!.getTime() < operation.endTime.getTime() &&
                     operation.startTime.getTime() < options.chartEndTime!.getTime();
 
