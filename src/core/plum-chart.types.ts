@@ -1,5 +1,4 @@
-import { CanvasRenderType, ControllerLocation } from "./plum-chart-core";
-import { Entity, PointEvent, RangeEvent, TimeEvent } from "./plum-chart-core.types";
+import { TimeEvent, CanvasRenderType, ControllerLocation, PointEvent, RangeEvent, Entity } from "./plum-chart-core.types";
 
 export enum SortDirection {
     ASC = "asc",
@@ -172,3 +171,8 @@ export interface PlumChartData {
      */
     globalRangeEvents: RangeEvent[],
 }
+
+
+
+
+

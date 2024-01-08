@@ -1,9 +1,9 @@
 import "@/assets/css/plum-chart.css";
 import dayjs from "dayjs";
-import { Entity, PointEvent, RangeEvent } from "./plum-chart-core.types";
-import { ChartOptions, CoreChart } from "./plum-chart-core";
-import { PlumChartOptions, PlumChartData, SortDirection, PlumChartState } from "./plum-chart.types";
 import CLOSE_ICON from "@/assets/image/close.svg";
+import { CoreChart } from "./plum-chart-core";
+import { PointEvent, RangeEvent, Entity, ChartOptions } from "./plum-chart-core.types";
+import { PlumChartOptions, PlumChartData, PlumChartState, SortDirection } from "./plum-chart.types";
 
 const CLS_ROOT_CONTAINER = "pl-root-container";
 const CLS_LEGEND_CONTAINER = "pl-legend-container";
