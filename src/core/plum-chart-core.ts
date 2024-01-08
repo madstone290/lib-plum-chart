@@ -1441,7 +1441,6 @@ export const CoreChart = function () {
         }
         _state.zoomVelocity += _state.defaultZoomStep;
         const nextZoomScale = _options.currZoomScale + _state.zoomVelocity;
-        console.log("next zoom scale: ", nextZoomScale);
         _zoom(nextZoomScale, pivotPointX, pivotPointY);
         _state.prevZoomDirection = "in";
     }
@@ -1454,7 +1453,6 @@ export const CoreChart = function () {
         }
         _state.zoomVelocity -= _state.defaultZoomStep;
         const nextZoomScale = _options.currZoomScale + _state.zoomVelocity;
-        console.log("next zoom scale: ", nextZoomScale);
         _zoom(nextZoomScale, pivotPointX, pivotPointY);
         _state.prevZoomDirection = "out";
     }
@@ -1469,7 +1467,6 @@ export const CoreChart = function () {
 
         _options.currZoomScale = scale;
 
-        console.log("Zoom scale: ", scale);
         // 줌 후 스크롤 위치 계산
         let scrollLeft = _elements.mainCanvasBox.scrollLeft;
         let scrollTop = _elements.mainCanvasBox.scrollTop;

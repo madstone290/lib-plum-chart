@@ -1,4 +1,4 @@
-import { TimeEvent, CanvasRenderType, ControllerLocation, PointEvent, RangeEvent, Entity } from "./plum-chart-core.types";
+import { TimeEvent, PointEvent, RangeEvent, Entity, ChartOptions } from "./plum-chart-core.types";
 
 export enum SortDirection {
     ASC = "asc",
@@ -53,51 +53,11 @@ export interface PlumChartOptions {
     getTooltipTextLines<T extends TimeEvent>(event: T): string[];
     hasTooltipShowTime<T extends TimeEvent>(event: T): boolean;
 
-    renderMode: CanvasRenderType,
+    coreOptions: Partial<ChartOptions>;
+
     useEventHoverColor: boolean,
     eventHoverColor: string,
     gridColumns: GridColumn[],
-    gridTitle: string,
-    canvasTitle: string,
-    chartStartTime: Date,
-    chartEndTime: Date,
-    leftPanelWidth: number,
-    columnTitleHeight: number,
-    columnHeaderHeight: number,
-    sideCanvasHeight: number,
-    sideCanvasContentHeightRatio: number,
-    cellMinutes: number,
-    cellWidth: number,
-    cellHeight: number,
-    mainRangeContentRatio: number,
-    mainPointContentRatio: number,
-    minZoomScale: number,
-    maxZoomScale: number,
-    /**
-     * 현재 차트에 적용된(적용할) 줌 스케일
-     */
-    currZoomScale: number;
-    hasHorizontalLine: boolean,
-    hasVerticalLine: boolean,
-    /**
-     * 컬럼 너비를 자동으로 맞출지 여부. true인 경우 셀너비 옵션이 무시된다. 현재 차트 너비에 맞춰 셀너비를 조절한다.
-     */
-    columnAutoWidth: boolean;
-    /**
-     * 테이블 행에 마우스를 올렸을 때 배경색
-     */
-    rowHoverColor: string;
-
-    /**
-     * 컨트롤러 고정 여부
-     */
-    fixedController: boolean;
-
-    /**
-     * 컨트롤러 위치. 고정 컨트롤러인 경우에만 사용한다.
-     */
-    controllerLocation: ControllerLocation;
-
 
     formatTime: (time: Date) => string;
     formatTimeRange: (start: Date, end: Date) => string;

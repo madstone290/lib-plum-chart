@@ -73,15 +73,17 @@ window.addEventListener("DOMContentLoaded", () => {
             field: 'product',
             caption: 'Product',
         }],
-        gridTitle: 'Lot Information',
-        canvasTitle: 'Lot Status',
-        chartStartTime: new Date(2024, 0, 1, 0, 0, 0, 0),
-        chartEndTime: new Date(2024, 0, 1, 3, 0, 0, 0),
-        columnAutoWidth: true,
-        cellWidth: 200,
-        maxZoomScale: 10,
-        minZoomScale: 1,
-        currZoomScale: 2,
+        coreOptions: {
+            gridTitle: 'Lot Information',
+            canvasTitle: 'Lot Status',
+            chartStartTime: new Date(2024, 0, 1, 0, 0, 0, 0),
+            chartEndTime: new Date(2024, 0, 1, 3, 0, 0, 0),
+            columnAutoWidth: true,
+            cellWidth: 200,
+            maxZoomScale: 10,
+            minZoomScale: 1,
+            currZoomScale: 2,
+        },
         hasTooltipVisible: (event) => {
             return true;
         },
@@ -153,8 +155,8 @@ window.addEventListener("DOMContentLoaded", () => {
     const newData: Partial<PlumChartData> = {
         entities: data.entities.filter((value, idx) => {
             const eventExist = value.rangeEvents.some(operation => {
-                return options.chartStartTime!.getTime() < operation.endTime.getTime() &&
-                    operation.startTime.getTime() < options.chartEndTime!.getTime();
+                return options.coreOptions!.chartStartTime!.getTime() < operation.endTime.getTime() &&
+                    operation.startTime.getTime() < options.coreOptions!.chartEndTime!.getTime();
 
             });
             return eventExist;
@@ -169,15 +171,18 @@ window.addEventListener("DOMContentLoaded", () => {
     setInterval(() => {
         const plumChartOptions = plumChart.getOptions();
 
-        const chartStartTime = plumChartOptions.chartStartTime;
+        const chartStartTime = plumChartOptions.coreOptions!.chartStartTime!;
         chartStartTime.setMinutes(chartStartTime.getMinutes() + 1);
-        const chartEndTime = plumChartOptions.chartEndTime;
+        const chartEndTime = plumChartOptions.coreOptions!.chartEndTime!;
         chartEndTime.setMinutes(chartEndTime.getMinutes() + 1);
 
         const options: Partial<PlumChartOptions> = {
-            chartStartTime: chartStartTime,
-            chartEndTime: chartEndTime,
-        }
+            coreOptions: {
+                chartStartTime: chartStartTime,
+                chartEndTime: chartEndTime,
+            }
+        };
+
         plumChart.setOptions(options);
         // display only events in the range of chartStartTime and chartEndTime
         const newData: Partial<PlumChartData> = {

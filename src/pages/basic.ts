@@ -67,6 +67,17 @@ window.addEventListener("DOMContentLoaded", () => {
     plumChart.create(containerEl);
 
     const options: Partial<PlumChartOptions> = {
+        coreOptions: {
+            gridTitle: 'Lot Information',
+            canvasTitle: 'Lot Status',
+            chartStartTime: new Date(2024, 0, 1, 0, 0, 0, 0),
+            chartEndTime: new Date(2024, 0, 1, 24, 0, 0, 0),
+            columnAutoWidth: true,
+            cellWidth: 50,
+            maxZoomScale: 20,
+            minZoomScale: 1,
+            currZoomScale: 5,
+        },
         useEventHoverColor: false,
         eventHoverColor: '#ccc',
         gridColumns: [{
@@ -77,15 +88,6 @@ window.addEventListener("DOMContentLoaded", () => {
             field: 'product',
             caption: 'Product',
         }],
-        gridTitle: 'Lot Information',
-        canvasTitle: 'Lot Status',
-        chartStartTime: new Date(2024, 0, 1, 0, 0, 0, 0),
-        chartEndTime: new Date(2024, 0, 1, 24, 0, 0, 0),
-        columnAutoWidth: true,
-        cellWidth: 50,
-        maxZoomScale: 20,
-        minZoomScale: 1,
-        currZoomScale: 5,
         hasTooltipVisible: (event) => {
             return true;
         },
@@ -142,7 +144,6 @@ window.addEventListener("DOMContentLoaded", () => {
             return "";
         }
     }
-    Object.assign(options, options);
     plumChart.setOptions(options);
     plumChart.setData({
         legends: legends,
