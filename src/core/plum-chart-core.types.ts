@@ -1,4 +1,11 @@
 /**
+ * 플럼차트 글로벌 인터페이스
+ */
+export interface PlumChartGlobal {
+    debug: boolean;
+}
+
+/**
  * 이벤트 마크 인터페이스
  */
 export interface TimeEvent {

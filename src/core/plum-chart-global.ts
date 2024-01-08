@@ -1,0 +1,3 @@
+interface PlumChartGlobal {
+    debug: boolean;
+}

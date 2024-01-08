@@ -1,6 +1,14 @@
 import "@/assets/css/plum-chart-core.css"
-import { ControllerLocation, ChartData, ChartOptions, Entity, PointEvent, RangeEvent, ChartState, ChartElements, EntityRow } from "./plum-chart-core.types";
-export let DEBUG = false;
+import { ControllerLocation, ChartData, ChartOptions, Entity, PointEvent, RangeEvent, ChartState, ChartElements, EntityRow, PlumChartGlobal } from "./plum-chart-core.types";
+declare global {
+    interface Window {
+        plumChartGlobal: PlumChartGlobal;
+    }
+}
+
+window.plumChartGlobal = {
+    debug: false,
+}
 
 // #region Constants
 const CLS_ROOT = "tc-root";
@@ -535,7 +543,7 @@ export const CoreChart = function () {
         // 발생하지 않는 경우 touchstart 이벤트를 사용해야 한다.
         // 고정 컨트롤러가 아닌 경우에만 컨텍스트 메뉴 팝업 적용.
         _elements.mainCanvas.addEventListener("contextmenu", (e) => {
-            if (!DEBUG) {
+            if (!window.plumChartGlobal?.debug) {
                 e.preventDefault();
             }
             if (_options.fixedController)
