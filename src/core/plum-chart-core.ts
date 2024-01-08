@@ -167,6 +167,7 @@ export const CoreChart = function () {
         maxZoomScale: 5,
         minZoomScale: 1,
         zoomScale: 1,
+        zoomChangeRate: 0.2,
         scrollLeft: 0,
         scrollTop: 0,
         cellMinutes: 30,
@@ -231,7 +232,6 @@ export const CoreChart = function () {
         cellHeight: _options.cellHeight!,
         canvasColumnCount: 0,
         originalCellWidth: 0,
-        zoomChangeRate: 0.2,
         originalCellHeight: 0,
         chartRenderStartTime: _options.chartStartTime,
         chartRenderEndTime: _options.chartEndTime,
@@ -1434,12 +1434,12 @@ export const CoreChart = function () {
     }
 
     function _zoomIn(pivotPointX?: number, pivotPointY?: number) {
-        const nextZoomScale = _options.zoomScale * (1 + _state.zoomChangeRate);
+        const nextZoomScale = _options.zoomScale * (1 + _options.zoomChangeRate);
         _zoom(nextZoomScale, pivotPointX, pivotPointY);
     }
 
     function _zoomOut(pivotPointX?: number, pivotPointY?: number) {
-        const nextZoomScale = _options.zoomScale * (1 - _state.zoomChangeRate);
+        const nextZoomScale = _options.zoomScale / (1 + _options.zoomChangeRate);
         _zoom(nextZoomScale, pivotPointX, pivotPointY);
     }
 

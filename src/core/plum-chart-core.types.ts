@@ -126,22 +126,32 @@ export interface ChartOptions {
     sideCanvasContentHeightRatio: number;
     mainRangeContentRatio: number;
     mainPointContentRatio: number;
+
     /**
      * 차트 줌 최소 스케일
      */
     minZoomScale: number;
+
     /**
      * 차트 줌 최대 스케일
      */
     maxZoomScale: number;
+
     /**
      * 차트의 현재 줌 스케일
      */
     zoomScale: number;
+
+    /**
+     * 줌 변경 비율. (0, 1) 사이의 값. 0에 가까울수록 줌 속도가 느리다.
+     */
+    zoomChangeRate: number;
+
     /**
      * 차트의 현재 스크롤 탑 위치
      */
     scrollTop: number;
+
     /**
      * 차트의 현재 스크롤 레프트 위치
      */
@@ -245,31 +255,26 @@ export interface ChartState {
      * 최근 줌 시간. 줌 이전에 렌더링된 엘리먼트는 새로 렌더링한다.
      */
     lastZoomTime: Date;
-    
+
     /**
      * 차트 렌더링 시작 시간. 패딩을 포함한 시간.
      */
     chartRenderStartTime: Date;
-   
+
     /**
      * 차트 렌더링 종료 시간. 패딩을 포함한 시간.
      */
     chartRenderEndTime: Date;
-    
+
     /**
     * 원본 셀 너비.
     */
     originalCellWidth: number;
-    
+
     /**
      * 원본 셀 높이.
      */
     originalCellHeight: number;
-
-    /**
-     * 줌 변경 비율. (0, 1) 사이의 값. 0에 가까울수록 줌 속도가 느리다.
-     */
-    zoomChangeRate: number;
 
     /**
      * 렌더링된 캔버스 수직경계 엘리먼트 목록

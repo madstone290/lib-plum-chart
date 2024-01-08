@@ -77,6 +77,7 @@ window.addEventListener("DOMContentLoaded", () => {
             maxZoomScale: 50,
             minZoomScale: 1,
             zoomScale: 5,
+            zoomChangeRate: 0.2,
             scrollLeft: 700,
             scrollTop: 700,
         },
