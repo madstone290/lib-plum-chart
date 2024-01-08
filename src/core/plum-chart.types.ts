@@ -73,6 +73,10 @@ export interface PlumChartOptions {
     mainPointContentRatio: number,
     minZoomScale: number,
     maxZoomScale: number,
+    /**
+     * 현재 차트에 적용된(적용할) 줌 스케일
+     */
+    currZoomScale: number;
     hasHorizontalLine: boolean,
     hasVerticalLine: boolean,
     /**

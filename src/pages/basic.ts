@@ -85,6 +85,7 @@ window.addEventListener("DOMContentLoaded", () => {
         cellWidth: 50,
         maxZoomScale: 20,
         minZoomScale: 1,
+        currZoomScale: 5,
         hasTooltipVisible: (event) => {
             return true;
         },

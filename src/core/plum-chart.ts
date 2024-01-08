@@ -60,7 +60,8 @@ export function PlumChart() {
         mainRangeContentRatio: 0.9,
         mainPointContentRatio: 0.8,
         minZoomScale: 1,
-        maxZoomScale: 4,
+        maxZoomScale: 10,
+        currZoomScale: 1,
         hasHorizontalLine: true,
         hasVerticalLine: true,
         columnAutoWidth: true,
@@ -145,9 +146,58 @@ export function PlumChart() {
         const chartContainerEl = document.createElement("div");
         chartContainerEl.classList.add(CLS_CHART_CONTAINER);
         _coreChart.create(chartContainerEl);
+        _coreChart.setOptions(_getDefaultOptions());
+
         rootEl.appendChild(chartContainerEl);
 
         _state.containerEl.appendChild(rootEl);
+    }
+
+    function _getDefaultOptions() {
+        const defaultOptions: Partial<ChartOptions> = {
+            renderMode: _options.renderMode,
+            gridTitle: _options.gridTitle,
+            canvasTitle: _options.canvasTitle,
+            chartStartTime: _options.chartStartTime,
+            chartEndTime: _options.chartEndTime,
+            columnTitleHeight: _options.columnTitleHeight,
+            columnHeaderHeight: _options.columnHeaderHeight,
+            sideCanvasHeight: _options.sideCanvasHeight,
+            sideCanvasContentHeightRatio: _options.sideCanvasContentHeightRatio,
+            cellMinutes: _options.cellMinutes,
+            cellWidth: _options.cellWidth,
+            cellHeight: _options.cellHeight,
+            mainRangeContentRatio: _options.mainRangeContentRatio,
+            mainPointContentRatio: _options.mainPointContentRatio,
+            minZoomScale: _options.minZoomScale,
+            maxZoomScale: _options.maxZoomScale,
+            currZoomScale: _options.currZoomScale,
+            hasHorizontalLine: _options.hasHorizontalLine,
+            hasVerticalLine: _options.hasVerticalLine,
+            columnAutoWidth: _options.columnAutoWidth,
+            rowHoverColor: _options.rowHoverColor,
+            fixedController: _options.fixedController,
+            controllerLocation: _options.controllerLocation,
+            hZoomEnabled: true,
+            vZoomEnabled: false,
+            paddingCellCount: 0,
+            leftPanelWidth: 350,
+            buttonScrollStepX: 400,
+            buttonScrollStepY: 400,
+            borderColor: "#333c77",
+            canvasLineColor: "#e1edf8",
+            renderGridRow: _renderGridRow,
+            renderHeaderCell: _renderHeaderCell,
+            renderGridTitle: _renderGridTitle,
+            renderGridColumns: _renderGridColumns,
+            renderCanvasTitle: _renderCanvasTitle,
+            customizeElements: _customizeElements,
+            renderSidePointEvent: _renderSidePointEvent,
+            renderGlobalRangeEvent: _renderGlobalRangeEvent,
+            renderEntityPointEvent: _renderEntityPointEvent,
+            renderEntityRangeEvent: _renderEntityRangeEvent,
+        };
+        return defaultOptions;
     }
 
     /**
@@ -783,53 +833,8 @@ export function PlumChart() {
     }
 
     function setOptions(options: Partial<PlumChartOptions>) {
+        // 플럼차트 옵션 적용
         Object.assign(_options, options);
-
-        const coreOptions: Partial<ChartOptions> = {
-            renderMode: _options.renderMode,
-            gridTitle: _options.gridTitle,
-            canvasTitle: _options.canvasTitle,
-            chartStartTime: _options.chartStartTime,
-            chartEndTime: _options.chartEndTime,
-            columnTitleHeight: _options.columnTitleHeight,
-            columnHeaderHeight: _options.columnHeaderHeight,
-            sideCanvasHeight: _options.sideCanvasHeight,
-            sideCanvasContentHeightRatio: _options.sideCanvasContentHeightRatio,
-            cellMinutes: _options.cellMinutes,
-            cellWidth: _options.cellWidth,
-            cellHeight: _options.cellHeight,
-            mainRangeContentRatio: _options.mainRangeContentRatio,
-            mainPointContentRatio: _options.mainPointContentRatio,
-            minZoomScale: _options.minZoomScale,
-            maxZoomScale: _options.maxZoomScale,
-            hasHorizontalLine: _options.hasHorizontalLine,
-            hasVerticalLine: _options.hasVerticalLine,
-            columnAutoWidth: _options.columnAutoWidth,
-            rowHoverColor: _options.rowHoverColor,
-            fixedController: _options.fixedController,
-            controllerLocation: _options.controllerLocation,
-            hZoomEnabled: true,
-            vZoomEnabled: false,
-            paddingCellCount: 0,
-            leftPanelWidth: 350,
-            buttonScrollStepX: 400,
-            buttonScrollStepY: 400,
-            borderColor: "#333c77",
-            canvasLineColor: "#e1edf8",
-            renderGridRow: _renderGridRow,
-            renderHeaderCell: _renderHeaderCell,
-            renderGridTitle: _renderGridTitle,
-            renderGridColumns: _renderGridColumns,
-            renderCanvasTitle: _renderCanvasTitle,
-            customizeElements: _customizeElements,
-            renderSidePointEvent: _renderSidePointEvent,
-            renderGlobalRangeEvent: _renderGlobalRangeEvent,
-            renderEntityPointEvent: _renderEntityPointEvent,
-            renderEntityRangeEvent: _renderEntityRangeEvent,
-        };
-
-        _coreChart.setOptions(coreOptions);
-
         _state.gridColumnMap.clear();
         _options.gridColumns?.forEach((column) => {
             _state.gridColumnMap.set(column, NULL_ELEMENT);
@@ -846,10 +851,17 @@ export function PlumChart() {
             };
         }) ?? [];
 
+        // 코어차트 옵션 적용
+        const coreOptions = _coreChart.getOptions();
+        Object.assign(coreOptions, options);
+        _coreChart.setOptions(coreOptions);
     }
 
     function getOptions() {
-        return _options;
+        const coreOptions = _coreChart.getOptions();
+        const options = { ..._options };
+        Object.assign(options, coreOptions);
+        return options;
     }
 
     function setData(data: Partial<PlumChartData>) {

@@ -166,6 +166,7 @@ export const CoreChart = function () {
         sideCanvasContentHeightRatio: 0.6,
         maxZoomScale: 5,
         minZoomScale: 1,
+        currZoomScale: 1,
         cellMinutes: 30,
         cellWidth: 100,
         cellHeight: 50,
@@ -230,7 +231,6 @@ export const CoreChart = function () {
         cellWidth: _options.cellWidth!,
         cellHeight: _options.cellHeight!,
         canvasColumnCount: 0,
-        currZoomScale: 1,
         zoomVelocity: 0,
         defaultZoomStep: 0.1,
         originalCellWidth: 0,
@@ -583,7 +583,7 @@ export const CoreChart = function () {
     }
 
     function getOptions() {
-        return _options;
+        return { ..._options };
     }
 
     function setChartTimeRange(startTime: Date, endTime: Date) {
@@ -668,7 +668,7 @@ export const CoreChart = function () {
         // 캔버스 컬럼 수에 따라 캔버스 너비를 계산한다.
         if (_options.columnAutoWidth) {
             _state.originalCellWidth = _elements.mainCanvasBox.clientWidth / _state.canvasColumnCount;
-            _state.cellWidth = _state.originalCellWidth * _state.currZoomScale;
+            _state.cellWidth = _state.originalCellWidth * _options.currZoomScale;
         }
     }
     /**
@@ -700,6 +700,9 @@ export const CoreChart = function () {
 
         // 스크롤 위치를 강제로 변경시켜 렌더링을 유도한다.
         _elements.mainCanvasBox.scrollTo(_elements.mainCanvasBox.scrollLeft, _elements.mainCanvasBox.scrollTop - 1);
+
+
+        _zoom(_options.currZoomScale);
     }
 
     /**
@@ -710,7 +713,7 @@ export const CoreChart = function () {
             // 컬럼헤더에 따라 캔버스 사이즈가 변경된다.
             const canvasWidth = _elements.mainCanvasBox.clientWidth;
             _state.originalCellWidth = canvasWidth / _state.canvasColumnCount;
-            _state.cellWidth = _state.originalCellWidth * _state.currZoomScale;
+            _state.cellWidth = _state.originalCellWidth * _options.currZoomScale;
             _refreshCanvas();
         }
     }
@@ -1437,8 +1440,9 @@ export const CoreChart = function () {
             _state.zoomVelocity = 0;
         }
         _state.zoomVelocity += _state.defaultZoomStep;
-        const nextZoomScaleX = _state.currZoomScale + _state.zoomVelocity;
-        _zoom(nextZoomScaleX, pivotPointX, pivotPointY);
+        const nextZoomScale = _options.currZoomScale + _state.zoomVelocity;
+        console.log("next zoom scale: ", nextZoomScale);
+        _zoom(nextZoomScale, pivotPointX, pivotPointY);
         _state.prevZoomDirection = "in";
     }
 
@@ -1449,7 +1453,8 @@ export const CoreChart = function () {
             _state.zoomVelocity = 0;
         }
         _state.zoomVelocity -= _state.defaultZoomStep;
-        const nextZoomScale = _state.currZoomScale + _state.zoomVelocity;
+        const nextZoomScale = _options.currZoomScale + _state.zoomVelocity;
+        console.log("next zoom scale: ", nextZoomScale);
         _zoom(nextZoomScale, pivotPointX, pivotPointY);
         _state.prevZoomDirection = "out";
     }
@@ -1459,7 +1464,12 @@ export const CoreChart = function () {
             scale = _options.minZoomScale;
         if (_options.maxZoomScale <= scale)
             scale = _options.maxZoomScale;
+        if (scale === _options.currZoomScale)
+            return;
 
+        _options.currZoomScale = scale;
+
+        console.log("Zoom scale: ", scale);
         // 줌 후 스크롤 위치 계산
         let scrollLeft = _elements.mainCanvasBox.scrollLeft;
         let scrollTop = _elements.mainCanvasBox.scrollTop;
@@ -1486,7 +1496,6 @@ export const CoreChart = function () {
                 scrollTop = newPivotPointY - scrollOffset;
             }
         }
-
         // 일부 렌더링에는 마지막 줌 시간이 필요하므로 미리 저장해둔다.
         _state.lastZoomTime = new Date();
         _refreshCanvas();
@@ -1494,8 +1503,6 @@ export const CoreChart = function () {
         // keep scroll position
         _elements.mainCanvasBox.scrollLeft = scrollLeft;
         _elements.mainCanvasBox.scrollTop = scrollTop;
-
-        _state.currZoomScale = scale;
     }
 
     /**

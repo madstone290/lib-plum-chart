@@ -126,9 +126,25 @@ export interface ChartOptions {
     sideCanvasContentHeightRatio: number;
     mainRangeContentRatio: number;
     mainPointContentRatio: number;
+    /**
+     * 차트 줌 최소 스케일
+     */
     minZoomScale: number;
+    /**
+     * 차트 줌 최대 스케일
+     */
     maxZoomScale: number;
+    /**
+     * 현재 차트에 적용된(적용할) 줌 스케일
+     */
+    currZoomScale: number;
+    /**
+     * 수평선 표시 여부
+     */
     hasHorizontalLine: boolean;
+    /**
+     * 수직선 표시 여부
+     */
     hasVerticalLine: boolean;
     /**
      * 컬럼 너비를 자동으로 맞출지 여부. true인 경우 셀너비 옵션이 무시된다. 현재 차트 너비에 맞춰 셀너비를 조절한다.
@@ -226,6 +242,7 @@ export interface ChartState {
      * 줌 가속 초기화 시간(밀리초)
      */
     accelResetTimeout: number;
+
     /**
      * 최근 줌 시간. 줌 이전에 렌더링된 엘리먼트는 새로 렌더링한다.
      */
@@ -242,18 +259,13 @@ export interface ChartState {
 
 
     /**
-* 원본 셀 너비.
-*/
+    * 원본 셀 너비.
+    */
     originalCellWidth: number;
     /**
      * 원본 셀 높이.
      */
     originalCellHeight: number;
-
-    /**
-     * 현재 Y축 줌값.
-     */
-    currZoomScale: number;
 
     /**
      * 기본 줌 스텝.

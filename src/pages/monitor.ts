@@ -79,8 +79,9 @@ window.addEventListener("DOMContentLoaded", () => {
         chartEndTime: new Date(2024, 0, 1, 3, 0, 0, 0),
         columnAutoWidth: true,
         cellWidth: 200,
-        maxZoomScale: 50,
-        minZoomScale: 0.3,
+        maxZoomScale: 10,
+        minZoomScale: 1,
+        currZoomScale: 2,
         hasTooltipVisible: (event) => {
             return true;
         },
