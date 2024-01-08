@@ -135,9 +135,17 @@ export interface ChartOptions {
      */
     maxZoomScale: number;
     /**
-     * 현재 차트에 적용된(적용할) 줌 스케일
+     * 차트의 현재 줌 스케일
      */
-    currZoomScale: number;
+    zoomScale: number;
+    /**
+     * 차트의 현재 스크롤 탑 위치
+     */
+    scrollTop: number;
+    /**
+     * 차트의 현재 스크롤 레프트 위치
+     */
+    scrollLeft: number;
     /**
      * 수평선 표시 여부
      */

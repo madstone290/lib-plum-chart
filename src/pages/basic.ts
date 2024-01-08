@@ -76,7 +76,7 @@ window.addEventListener("DOMContentLoaded", () => {
             cellWidth: 50,
             maxZoomScale: 20,
             minZoomScale: 1,
-            currZoomScale: 5,
+            zoomScale: 5,
         },
         useEventHoverColor: false,
         eventHoverColor: '#ccc',

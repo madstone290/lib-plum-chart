@@ -59,7 +59,7 @@ export function PlumChart() {
             mainPointContentRatio: 0.8,
             minZoomScale: 1,
             maxZoomScale: 10,
-            currZoomScale: 1,
+            zoomScale: 1,
             hasHorizontalLine: true,
             hasVerticalLine: true,
             columnAutoWidth: true,

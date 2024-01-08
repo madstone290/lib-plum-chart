@@ -166,7 +166,7 @@ export const CoreChart = function () {
         sideCanvasContentHeightRatio: 0.6,
         maxZoomScale: 5,
         minZoomScale: 1,
-        currZoomScale: 1,
+        zoomScale: 1,
         cellMinutes: 30,
         cellWidth: 100,
         cellHeight: 50,
@@ -422,8 +422,11 @@ export const CoreChart = function () {
             // 가로스크롤 동기화
             _elements.canvasColumnBox.scrollLeft = _elements.mainCanvasBox.scrollLeft;
             _elements.sideCanvasBox.scrollLeft = _elements.mainCanvasBox.scrollLeft;
+            _options.scrollLeft = _elements.mainCanvasBox.scrollLeft;
+
             // 세로스크롤 동기화
             _elements.gridBox.scrollTop = _elements.mainCanvasBox.scrollTop;
+            _options.scrollTop = _elements.mainCanvasBox.scrollTop;
         });
         _elements.gridBox.addEventListener("wheel", (e) => {
             // 세로스크롤 동기화
@@ -668,7 +671,7 @@ export const CoreChart = function () {
         // 캔버스 컬럼 수에 따라 캔버스 너비를 계산한다.
         if (_options.columnAutoWidth) {
             _state.originalCellWidth = _elements.mainCanvasBox.clientWidth / _state.canvasColumnCount;
-            _state.cellWidth = _state.originalCellWidth * _options.currZoomScale;
+            _state.cellWidth = _state.originalCellWidth * _options.zoomScale;
         }
     }
     /**
@@ -701,8 +704,8 @@ export const CoreChart = function () {
         // 스크롤 위치를 강제로 변경시켜 렌더링을 유도한다.
         _elements.mainCanvasBox.scrollTo(_elements.mainCanvasBox.scrollLeft, _elements.mainCanvasBox.scrollTop - 1);
 
-
-        _zoom(_options.currZoomScale);
+        _zoom(_options.zoomScale);
+        _scrollTo(_options.scrollLeft, _options.scrollTop);
     }
 
     /**
@@ -713,7 +716,7 @@ export const CoreChart = function () {
             // 컬럼헤더에 따라 캔버스 사이즈가 변경된다.
             const canvasWidth = _elements.mainCanvasBox.clientWidth;
             _state.originalCellWidth = canvasWidth / _state.canvasColumnCount;
-            _state.cellWidth = _state.originalCellWidth * _options.currZoomScale;
+            _state.cellWidth = _state.originalCellWidth * _options.zoomScale;
             _refreshCanvas();
         }
     }
@@ -725,7 +728,6 @@ export const CoreChart = function () {
         _mainCanvasBoxResizeObserver?.disconnect();
         _mainCanvasBoxResizeObserver = new ResizeObserver(_mainCanvasBoxResizeCallback);
         _mainCanvasBoxResizeObserver.observe(_elements.mainCanvasBox);
-
     }
 
     function _renderMainTitle() {
@@ -1440,7 +1442,7 @@ export const CoreChart = function () {
             _state.zoomVelocity = 0;
         }
         _state.zoomVelocity += _state.defaultZoomStep;
-        const nextZoomScale = _options.currZoomScale + _state.zoomVelocity;
+        const nextZoomScale = _options.zoomScale + _state.zoomVelocity;
         _zoom(nextZoomScale, pivotPointX, pivotPointY);
         _state.prevZoomDirection = "in";
     }
@@ -1452,7 +1454,7 @@ export const CoreChart = function () {
             _state.zoomVelocity = 0;
         }
         _state.zoomVelocity -= _state.defaultZoomStep;
-        const nextZoomScale = _options.currZoomScale + _state.zoomVelocity;
+        const nextZoomScale = _options.zoomScale + _state.zoomVelocity;
         _zoom(nextZoomScale, pivotPointX, pivotPointY);
         _state.prevZoomDirection = "out";
     }
@@ -1462,10 +1464,10 @@ export const CoreChart = function () {
             scale = _options.minZoomScale;
         if (_options.maxZoomScale <= scale)
             scale = _options.maxZoomScale;
-        if (scale === _options.currZoomScale)
+        if (scale === _options.zoomScale)
             return;
 
-        _options.currZoomScale = scale;
+        _options.zoomScale = scale;
 
         // 줌 후 스크롤 위치 계산
         let scrollLeft = _elements.mainCanvasBox.scrollLeft;
@@ -1496,8 +1498,15 @@ export const CoreChart = function () {
         // 일부 렌더링에는 마지막 줌 시간이 필요하므로 미리 저장해둔다.
         _state.lastZoomTime = new Date();
         _refreshCanvas();
+        _scrollTo(scrollLeft, scrollTop);
+    }
 
-        // keep scroll position
+    /**
+     * 지정한 위치로 메인캔버스를 스크롤한다.
+     * @param scrollLeft
+     * @param scrollTop 
+     */
+    function _scrollTo(scrollLeft: number, scrollTop: number) {
         _elements.mainCanvasBox.scrollLeft = scrollLeft;
         _elements.mainCanvasBox.scrollTop = scrollTop;
     }
