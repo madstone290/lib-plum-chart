@@ -617,9 +617,11 @@ export const CoreChart = function () {
      * @param endTime 
      * @returns 
      */
-    function trucateTimeRange(startTime: Date, endTime?: Date): [Date, Date?] {
+    function truncateTimeRange(startTime: Date, endTime?: Date): [Date, Date?] {
         const trucateStartTime = new Date(Math.max(startTime.getTime(), _state.chartRenderStartTime.getTime()));
-        const trucateEndTime = endTime == null ? undefined : new Date(Math.min(endTime.getTime(), _state.chartRenderEndTime.getTime()));
+        const trucateEndTime = endTime == null 
+            ? new Date(_state.chartRenderEndTime)
+            : new Date(Math.min(endTime.getTime(), _state.chartRenderEndTime.getTime()));
         return [trucateStartTime, trucateEndTime];
     }
 
@@ -931,7 +933,7 @@ export const CoreChart = function () {
     }
 
     function _calcSidePointEventPosition(eventTime: Date) {
-        const [renderStartTime] = trucateTimeRange(eventTime);
+        const [renderStartTime] = truncateTimeRange(eventTime);
         const time = toMinutes(renderStartTime.valueOf() - _state.chartRenderStartTime.valueOf());
         const center = time * _state.cellWidth / _options.cellMinutes;
         const top = (_options.sideCanvasHeight - _calcSideCanvasContentHeight()) / 2;
@@ -1056,7 +1058,7 @@ export const CoreChart = function () {
             const evtStartTime = _getFirstVisibleEventTime(entity);
 
             if (evtStartTime != null) {
-                const [renderStartTime] = trucateTimeRange(evtStartTime);
+                const [renderStartTime] = truncateTimeRange(evtStartTime);
                 const time = toMinutes(renderStartTime.valueOf() - _state.chartRenderStartTime.valueOf());
                 const left = time * _state.cellWidth / _options.cellMinutes;
                 _elements.mainCanvasBox.scrollLeft = left + _options.entityEventSearchScrollOffset;
@@ -1311,7 +1313,7 @@ export const CoreChart = function () {
     }
 
     function _calcPointEventPosition(eventTime: Date, rowIndex: number): { top: number, left: number } {
-        const [renderStartTime] = trucateTimeRange(eventTime);
+        const [renderStartTime] = truncateTimeRange(eventTime);
         const time = toMinutes(renderStartTime.valueOf() - _state.chartRenderStartTime.valueOf());
         const center = time * _state.cellWidth / _options.cellMinutes;
         const contentHeight = _calcMainPointContentHeight();
@@ -1336,7 +1338,7 @@ export const CoreChart = function () {
     }
 
     function _calcRangeEventPosition(eventStartTime: Date, eventEndTime: Date, rowIndex: number): { top: number, left: number, width: number } {
-        const [renderStartTime, renderEndTime] = trucateTimeRange(eventStartTime, eventEndTime);
+        const [renderStartTime, renderEndTime] = truncateTimeRange(eventStartTime, eventEndTime);
         const startTime = toMinutes(renderStartTime.valueOf() - _state.chartRenderStartTime.valueOf());
         const duration = toMinutes(renderEndTime!.valueOf() - renderStartTime.valueOf());
         const left = startTime * _state.cellWidth / _options.cellMinutes;
