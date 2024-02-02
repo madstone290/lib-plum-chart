@@ -39,6 +39,21 @@ export const legends: Legend[] = [...l1, ...l2, ...l3, ...l4];
 
 export const globalErrors: GlobalError[] = [
     {
+        startTime: new Date(2024, 0, 1, 1, 10, 0, 0),
+        endTime: new Date(2024, 0, 1, 2, 30, 0, 0),
+        type: GlobalErrorType.Downtime
+    },
+    {
+        startTime: new Date(2024, 0, 1, 2, 50, 0, 0),
+        endTime: new Date(2024, 0, 1, 3, 20, 0, 0),
+        type: GlobalErrorType.Network
+    },
+    {
+        startTime: new Date(2024, 0, 1, 3, 40, 0, 0),
+        endTime: new Date(2024, 0, 1, 4, 0, 0, 0),
+        type: GlobalErrorType.Network
+    },
+    {
         startTime: new Date(2024, 0, 1, 6, 10, 0, 0),
         endTime: new Date(2024, 0, 1, 6, 30, 0, 0),
         type: GlobalErrorType.Downtime
