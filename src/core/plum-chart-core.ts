@@ -604,10 +604,10 @@ export const CoreChart = function () {
 
     function isTimeInRange(startTime: Date, endTime?: Date): boolean {
         if (endTime == null) {
-            return _state.chartRenderStartTime <= startTime && startTime <= _state.chartRenderEndTime;
+            return startTime <= _state.chartRenderEndTime;
         }
         else {
-            return _options.chartStartTime <= endTime && startTime <= _options.chartEndTime;
+            return _state.chartRenderStartTime <= endTime && startTime <= _state.chartRenderEndTime;
         }
     }
 
