@@ -83,7 +83,7 @@ export function PlumChart() {
         eventHoverColor: "#ccc",
         gridColumns: [],
         formatTime: (time) => {
-            return dayjs(time).format("HH:mm:ss");
+            return dayjs(time).format("YYYY-MM-DD HH:mm:ss");
         },
         formatTimeRange: _defaultFormatTimeRange,
         renderCanvasColumn: _renderHeaderCell,
