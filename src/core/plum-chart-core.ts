@@ -1227,7 +1227,7 @@ export const CoreChart = function () {
             return [];
 
         return rangeEvents.filter((evt: RangeEvent) => {
-            return _state.chartRenderStartTime.valueOf() <= evt.startTime.valueOf()
+            return _state.chartRenderStartTime.valueOf() <= evt.endTime.valueOf()
                 && evt.startTime.valueOf() <= _state.chartRenderEndTime.valueOf();
         }).sort((a: RangeEvent, b: RangeEvent) => {
             return a.startTime.valueOf() - b.startTime.valueOf();
