@@ -14,6 +14,7 @@ export const lotOperationClasses = new Map<LotOperationType, string>([
     [LotOperationType.Op2, "pl-op2"],
     [LotOperationType.Op3, "pl-op3"],
     [LotOperationType.Op4, "pl-op4"],
+    [LotOperationType.NetworkError, "pl-network"],
 ]);
 
 

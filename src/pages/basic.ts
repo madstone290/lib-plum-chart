@@ -1,13 +1,29 @@
 import { PlumChart } from "@/core/plum-chart";
 import ERROR_IMG_SRC from "@/assets/image/error.svg";
 import WARNING_IMG_SRC from "@/assets/image/warning.svg";
-import { GlobalErrorType, Lot, LotErrorType, SideError, SideErrorType } from "@/data/types";
+import { GlobalErrorType, Lot, LotErrorType, LotOperationType, SideError, SideErrorType } from "@/data/types";
 import { globalErrors, legends, lotErrorTypes, lotOperationClasses, lotOperationTypes, sideErrorTypes } from "@/data/dummy";
 import { PlumChartOptions } from "@/core/plum-chart.types";
 
 const getRandom = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
 
 const lots: Lot[] = [];
+// add 5 lots with network error
+for (let i = 0; i < 5; i++) {
+    lots.push({
+        number: `G30002-${0 + i}`,
+        product: `Network Error`,
+        operations: [
+            {
+                startTime: new Date(2023, 11, 29, 0, 0, 0, 0),
+                endTime: new Date(2024, 0, 1, i + 3, 0, 0, 0),
+                type: LotOperationType.NetworkError
+            }
+        ],
+        errors: [],
+    });
+}
+
 let time = 60;
 for (let i = 0; i < 100; i++) {
     let operationTime = time;
@@ -78,8 +94,8 @@ window.addEventListener("DOMContentLoaded", () => {
             minZoomScale: 1,
             zoomScale: 5,
             zoomChangeRate: 0.2,
-            scrollLeft: 700,
-            scrollTop: 700,
+            scrollLeft: 100,
+            scrollTop: 100,
         },
         useEventHoverColor: false,
         eventHoverColor: '#ccc',
@@ -143,9 +159,9 @@ window.addEventListener("DOMContentLoaded", () => {
                 return "pl-network";
             if (lotOperationClasses.has(eventType))
                 return lotOperationClasses.get(eventType)!;
-
+            console.log(eventType);
             return "";
-        }
+        },
     }
     plumChart.setOptions(options);
     plumChart.setData({

@@ -10,6 +10,7 @@ export enum LotOperationType {
     Op2 = "op2",
     Op3 = "op3",
     Op4 = "op4",
+    NetworkError = "networkError",
 }
 
 export enum SideErrorType {
