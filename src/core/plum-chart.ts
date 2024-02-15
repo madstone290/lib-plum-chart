@@ -2,8 +2,8 @@ import "@/assets/css/plum-chart.css";
 import dayjs from "dayjs";
 import CLOSE_ICON from "@/assets/image/close.svg";
 import { CoreChart } from "./plum-chart-core";
-import { PointEvent, RangeEvent, Entity } from "./plum-chart-core.types";
-import { PlumChartOptions, PlumChartData, PlumChartState, SortDirection } from "./plum-chart.types";
+import { PointEvent, RangeEvent } from "./plum-chart-core.types";
+import { PlumChartOptions, PlumChartData, PlumChartState, SortDirection, Entity } from "./plum-chart.types";
 
 const CLS_ROOT_CONTAINER = "pl-root-container";
 const CLS_LEGEND_CONTAINER = "pl-legend-container";
@@ -68,7 +68,7 @@ export function PlumChart() {
             canvasLineColor: "#e1edf8",
             fixedController: true,
             controllerLocation: "bottomRight",
-            renderGridRow: _renderGridRow,
+            renderGridRow: renderGridRow,
             renderHeaderCell: _renderHeaderCell,
             renderGridTitle: _renderGridTitle,
             renderGridColumns: _renderGridColumns,
@@ -705,8 +705,12 @@ export function PlumChart() {
      * @param entity 
      * @param containerEl 
      */
-    function _renderGridRow(index: number, entity: Entity, containerEl: HTMLElement): void {
+    function renderGridRow(index: number, entity: Entity, containerEl: HTMLElement): void {
         containerEl.classList.add(CLS_GRID_ROW);
+        if (entity.gridRowClassName) {
+            containerEl.classList.add(entity.gridRowClassName);
+        }
+
         let cellIndex = 0;
         for (const column of _state.gridColumnMap.keys()) {
             const itemEl = document.createElement("div");

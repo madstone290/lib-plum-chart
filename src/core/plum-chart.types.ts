@@ -1,10 +1,21 @@
-import { TimeEvent, PointEvent, RangeEvent, Entity, ChartOptions } from "./plum-chart-core.types";
+import { TimeEvent, PointEvent, RangeEvent, EntityBase, ChartOptions } from "./plum-chart-core.types";
 
 export enum SortDirection {
     ASC = "asc",
     DESC = "desc",
     NONE = "none"
 }
+
+export interface Entity extends EntityBase {
+    /**
+     * 데이터 그리드 로우에 적용할 클래스명
+     */
+    gridRowClassName?: string;
+
+    pointEvents: PointEvent[];
+    rangeEvents: RangeEvent[];
+}
+
 /**
  * 범례
  */
@@ -76,7 +87,7 @@ export interface PlumChartState {
     /**
      * 엔티티 목록 백업. 정렬에 사용.
      */
-    entitiesBackup: Entity[],
+    entitiesBackup: EntityBase[],
     /**
      * 그리드 컬럼 목록. key: 그리드컬럼, value: 그리드컬럼 엘리먼트
      */
@@ -88,7 +99,7 @@ export interface PlumChartState {
     /**
      * 그리드 컬럼 정렬 함수
      */
-    gridColumnSortFuncs: GridColumnSort<Entity>[],
+    gridColumnSortFuncs: GridColumnSort<EntityBase>[],
     /**
      * 현재 정렬 방향
      */

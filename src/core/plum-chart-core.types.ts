@@ -1,3 +1,5 @@
+import { Entity } from "./plum-chart.types";
+
 /**
  * 플럼차트 글로벌 인터페이스
  */
@@ -20,7 +22,7 @@ export interface RangeEvent extends TimeEvent {
     endTime: Date;
 }
 
-export interface Entity {
+export interface EntityBase {
     pointEvents: PointEvent[];
     rangeEvents: RangeEvent[];
 }
@@ -68,7 +70,7 @@ export interface EntityRow {
     /**
      * 엔티티
      */
-    entity: Entity;
+    entity: EntityBase;
     /**
      * 테이블 행의 컨테이너 엘리먼트
      */
@@ -93,7 +95,7 @@ export interface EntityRow {
 
 export interface ChartData {
 
-    entities: Entity[];
+    entities: EntityBase[];
 
     /**
      * 사이드캔버스에 표시할 이벤트

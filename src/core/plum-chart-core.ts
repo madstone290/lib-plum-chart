@@ -1,5 +1,5 @@
 import "@/assets/css/plum-chart-core.css"
-import { ControllerLocation, ChartData, ChartOptions, Entity, PointEvent, RangeEvent, ChartState, ChartElements, EntityRow, PlumChartGlobal } from "./plum-chart-core.types";
+import { ControllerLocation, ChartData, ChartOptions, EntityBase, PointEvent, RangeEvent, ChartState, ChartElements, EntityRow, PlumChartGlobal } from "./plum-chart-core.types";
 declare global {
     interface Window {
         plumChartGlobal: PlumChartGlobal;
@@ -200,7 +200,7 @@ export const CoreChart = function () {
         renderGridColumns: (containerEl: HTMLElement) => {
             containerEl.innerText = "Column";
         },
-        renderGridRow: (idx: number, entity: Entity, containerEl: HTMLElement) => {
+        renderGridRow: (idx: number, entity: EntityBase, containerEl: HTMLElement) => {
             containerEl.innerText = "Row #" + idx;
         },
         renderCanvasTitle: (containerEl: HTMLElement, title: string) => {
@@ -1042,7 +1042,7 @@ export const CoreChart = function () {
      * @param entity 
      * @returns 
      */
-    function _createEntityContainer(index: number, entity: Entity) {
+    function _createEntityContainer(index: number, entity: EntityBase) {
         const containerEl = document.createElement("div");
         containerEl.classList.add(CLS_ENTITY_TABLE_ITEM);
         containerEl.addEventListener("mouseenter", (e) => {
@@ -1074,7 +1074,7 @@ export const CoreChart = function () {
      * @param entity 
      * @returns 
      */
-    function _renderEntityContainer(index: number, entity: Entity) {
+    function _renderEntityContainer(index: number, entity: EntityBase) {
         const containerEl = _createEntityContainer(index, _data.entities[index]);
         _elements.gridBox.appendChild(containerEl);
 
@@ -1190,7 +1190,7 @@ export const CoreChart = function () {
      * @param entity 
      * @returns 
      */
-    function _getFirstVisibleEventTime(entity: Entity): Date | null {
+    function _getFirstVisibleEventTime(entity: EntityBase): Date | null {
         const visibleRangeEvents = _getVisibleRangeEvents(entity.rangeEvents);
         let rangeEvtTime: Date | null = null;
         if (0 < visibleRangeEvents.length) {
@@ -1251,12 +1251,12 @@ export const CoreChart = function () {
         });
     }
 
-    function _renderEntityEvents(entity: Entity, entityRow: EntityRow) {
+    function _renderEntityEvents(entity: EntityBase, entityRow: EntityRow) {
         _renderEntityPointEvents(entity, entityRow);
         _renderEntityRangeEvents(entity, entityRow);
     }
 
-    function _renderEntityPointEvents(entity: Entity, entityRow: EntityRow) {
+    function _renderEntityPointEvents(entity: EntityBase, entityRow: EntityRow) {
         let pointEvents = entity.pointEvents;
         if (_options.maxRenderCountPerRow < entity.pointEvents.length) {
             pointEvents = _filterEvenlySpacedEvents(entity.pointEvents, _options.maxRenderCountPerRow);
@@ -1268,7 +1268,7 @@ export const CoreChart = function () {
         }
     }
 
-    function _renderEntityRangeEvents(entity: Entity, entityRow: EntityRow) {
+    function _renderEntityRangeEvents(entity: EntityBase, entityRow: EntityRow) {
         let rangeEvents = entity.rangeEvents;
         if (_options.maxRenderCountPerRow < entity.rangeEvents.length) {
             rangeEvents = _filterEvenlySpacedEvents(entity.rangeEvents, _options.maxRenderCountPerRow);
