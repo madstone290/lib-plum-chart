@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import CLOSE_ICON from "@/assets/image/close.svg";
 import { CoreChart } from "./plum-chart-core";
 import { PointEvent, RangeEvent } from "./plum-chart-core.types";
-import { PlumChartOptions, PlumChartData, PlumChartState, SortDirection, Entity } from "./plum-chart.types";
+import { PlumChartOptions, PlumChartData, PlumChartState, SortDirection, GridRowEntity } from "./plum-chart.types";
 
 const CLS_ROOT_CONTAINER = "pl-root-container";
 const CLS_LEGEND_CONTAINER = "pl-legend-container";
@@ -705,7 +705,7 @@ export function PlumChart() {
      * @param entity 
      * @param containerEl 
      */
-    function renderGridRow(index: number, entity: Entity, containerEl: HTMLElement): void {
+    function renderGridRow(index: number, entity: GridRowEntity, containerEl: HTMLElement): void {
         containerEl.classList.add(CLS_GRID_ROW);
         if (entity.gridRowClassName) {
             containerEl.classList.add(entity.gridRowClassName);

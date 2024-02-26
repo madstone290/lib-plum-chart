@@ -1,4 +1,4 @@
-import { Entity } from "./plum-chart.types";
+import { GridRowEntity } from "./plum-chart.types";
 
 /**
  * 플럼차트 글로벌 인터페이스
@@ -22,7 +22,7 @@ export interface RangeEvent extends TimeEvent {
     endTime: Date;
 }
 
-export interface EntityBase {
+export interface Entity {
     pointEvents: PointEvent[];
     rangeEvents: RangeEvent[];
 }
@@ -70,7 +70,7 @@ export interface EntityRow {
     /**
      * 엔티티
      */
-    entity: EntityBase;
+    entity: Entity;
     /**
      * 테이블 행의 컨테이너 엘리먼트
      */
@@ -95,7 +95,7 @@ export interface EntityRow {
 
 export interface ChartData {
 
-    entities: EntityBase[];
+    entities: Entity[];
 
     /**
      * 사이드캔버스에 표시할 이벤트
@@ -221,7 +221,7 @@ export interface ChartOptions {
     renderCanvasTitle: (containerEl: HTMLElement, title: string) => void;
     renderGridTitle: (containerEl: HTMLElement, title: string) => void;
     renderGridColumns: (containerEl: HTMLElement) => void;
-    renderGridRow: (idx: number, entity: Entity, containerEl: HTMLElement) => void;
+    renderGridRow: (idx: number, entity: GridRowEntity, containerEl: HTMLElement) => void;
     renderSidePointEvent: (event: PointEvent, canvasEl: HTMLElement, containerEl: HTMLElement) => void;
     renderEntityPointEvent: (event: PointEvent, canvasEl: HTMLElement, containerEl: HTMLElement) => void;
     renderEntityRangeEvent: (event: RangeEvent, canvasEl: HTMLElement, containerEl: HTMLElement) => void;
