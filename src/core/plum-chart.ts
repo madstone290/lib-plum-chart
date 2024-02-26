@@ -2,7 +2,7 @@ import "@/assets/css/plum-chart.css";
 import dayjs from "dayjs";
 import CLOSE_ICON from "@/assets/image/close.svg";
 import { CoreChart } from "./plum-chart-core";
-import { PointEvent, RangeEvent } from "./plum-chart-core.types";
+import { GroupEvent, PointEvent, RangeEvent } from "./plum-chart-core.types";
 import { PlumChartOptions, PlumChartData, PlumChartState, SortDirection, GridRowEntity } from "./plum-chart.types";
 
 const CLS_ROOT_CONTAINER = "pl-root-container";
@@ -78,7 +78,11 @@ export function PlumChart() {
             renderGlobalRangeEvent: _renderGlobalRangeEvent,
             renderEntityPointEvent: _renderEntityPointEvent,
             renderEntityRangeEvent: _renderEntityRangeEvent,
+            useGroupEvent: false,
+            groupEventWidth: 50,
+            renderGroupEvent: renderGroupEvent
         },
+        useGroupEvent: false,
         useEventHoverColor: true,
         eventHoverColor: "#ccc",
         gridColumns: [],
@@ -89,6 +93,9 @@ export function PlumChart() {
         renderCanvasColumn: _renderHeaderCell,
         renderPointEventTooltip: _renderDefaultPointEventTooltip,
         renderRangeEventTooltip: _renderDefaultRangeEventTooltip,
+        renderEventTooltip: (event, eventEl, tooltipEl) => {
+            renderGroupEventTooltip(event as GroupEvent, eventEl, tooltipEl);
+        },
         getEventColor: (event) => {
             return "";
         },
@@ -802,9 +809,63 @@ export function PlumChart() {
         }
     }
 
+    function renderGroupEventTooltip(groupEvent: GroupEvent, eventEl: HTMLElement, tooltipEl: HTMLElement) {
+        let number = 1;
+        for (const subEvent of groupEvent.events) {
+            const div = document.createElement("div");
+            div.innerText = number + ": " + subEvent.time.toString();
+            tooltipEl.appendChild(div);
+            number++;
+        }
+    }
+
+    const eventTooltipMap = new Map<HTMLElement, HTMLElement>();
+    function renderGroupEvent(event: GroupEvent, canvasEl: HTMLElement, containerEl: HTMLElement) {
+        const hasSubEvent = 0 < event.events.length;
+        if (!hasSubEvent) {
+            containerEl.replaceChildren();
+            return containerEl;
+        }
+
+        if (!containerEl.hasChildNodes()) {
+            const imgEl = document.createElement("img");
+            imgEl.src = _options.getEventIconSrc(event);
+            imgEl.classList.add(CLS_ENTITY_POINT_EVENT);
+            containerEl.appendChild(imgEl);
+
+            if (_options.useEventHoverColor) {
+                _setEventHoverColor(imgEl);
+            }
+        }
+
+        let eventEl = containerEl.children[0] as HTMLElement;
+        const showTooltip = _options.hasTooltipVisible(event);
+        if (showTooltip) {
+            if (eventTooltipMap.has(eventEl)) {
+                const tooltipEl = eventTooltipMap.get(eventEl)!;
+                tooltipEl.replaceChildren();
+                _options.renderEventTooltip(event, eventEl, tooltipEl);
+            }
+            else {
+                const tooltipEl = document.createElement("div");
+                tooltipEl.classList.add(CLS_TOOLTIP);
+                _options.renderEventTooltip(event, eventEl, tooltipEl);
+                canvasEl.appendChild(tooltipEl);
+
+                _addTooltip(eventEl, tooltipEl);
+                eventTooltipMap.set(eventEl, tooltipEl);
+            }
+
+        }
+        return eventEl;
+    }
+
     function setOptions(options: Partial<PlumChartOptions>) {
         Object.assign(_options, options);
         if (options.coreOptions) {
+            if (options.useGroupEvent) {
+                options.coreOptions.useGroupEvent = options.useGroupEvent;
+            }
             _coreChart.setOptions(options.coreOptions);
         }
 

@@ -81,6 +81,18 @@ export interface PlumChartOptions {
      * 범위 이벤트 툴팁 커스텀 렌더링 함수
      */
     renderRangeEventTooltip: (event: RangeEvent, eventEl: HTMLElement, tooltipEl: HTMLElement) => void;
+
+    /**
+     * 이벤트 툴팁 커스텀 렌더링 함수
+     * @param event 
+     * @param eventEl 
+     * @param tooltipEl 
+     * @returns 
+     */
+    renderEventTooltip: (event: TimeEvent, eventEl: HTMLElement, tooltipEl: HTMLElement) => void;
+
+    useGroupEvent: boolean;
+
 }
 
 export interface PlumChartState {

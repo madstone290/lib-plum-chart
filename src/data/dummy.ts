@@ -1,4 +1,4 @@
-import { GlobalError, GlobalErrorType, LotErrorType, LotOperationType, SideErrorType } from "./types";
+import { GlobalError, GlobalErrorType, LotErrorType, LotOperationType, SideError, SideErrorType } from "./types";
 import ERROR_IMG_SRC from "@/assets/image/error.svg";
 import WARNING_IMG_SRC from "@/assets/image/warning.svg";
 import { Legend } from "@/core/plum-chart.types";
@@ -37,6 +37,33 @@ const l4 = globalErrorTypes.map(type => ({
     location: "right" as const
 }));
 export const legends: Legend[] = [...l1, ...l2, ...l3, ...l4];
+
+export const sideErrors: SideError[] = [
+    {
+        time: new Date(2024, 0, 1, 2, 0, 0, 0),
+        type: SideErrorType.Cost
+    },
+    {
+        time: new Date(2024, 0, 1, 2, 10, 0, 0),
+        type: SideErrorType.Delivery
+    },
+    {
+        time: new Date(2024, 0, 1, 2, 20, 0, 0),
+        type: SideErrorType.Man
+    },
+    {
+        time: new Date(2024, 0, 1, 3, 0, 0, 0),
+        type: SideErrorType.Cost
+    },
+    {
+        time: new Date(2024, 0, 1, 3, 10, 0, 0),
+        type: SideErrorType.Delivery
+    },
+    {
+        time: new Date(2024, 0, 1, 3, 20, 0, 0),
+        type: SideErrorType.Man
+    },
+];
 
 export const globalErrors: GlobalError[] = [
     {

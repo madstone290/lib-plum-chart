@@ -1,5 +1,5 @@
 import "@/assets/css/plum-chart-core.css"
-import { ControllerLocation, ChartData, ChartOptions, Entity, PointEvent, RangeEvent, ChartState, ChartElements, EntityRow, PlumChartGlobal } from "./plum-chart-core.types";
+import { ControllerLocation, ChartData, ChartOptions, Entity, PointEvent, RangeEvent, ChartState, ChartElements, EntityRow, PlumChartGlobal, GroupEvent } from "./plum-chart-core.types";
 declare global {
     interface Window {
         plumChartGlobal: PlumChartGlobal;
@@ -189,6 +189,13 @@ export const CoreChart = function () {
         entityEventSearchScrollOffset: -100,
         renderMode: "scroll",
         maxRenderCountPerRow: 300,
+        useGroupEvent: false,
+        groupEventWidth: 50,
+        renderGroupEvent: (group: GroupEvent, canvasEl: HTMLElement, containerEl: HTMLElement) => {
+            containerEl.innerText = "Group";
+            return containerEl;
+        },
+
         customizeElements: (_) => { },
         formatHeaderTime: (time: Date) => { return time.toLocaleTimeString(); },
         renderHeaderCell: (time: Date, containerEl: HTMLElement) => {
@@ -239,6 +246,7 @@ export const CoreChart = function () {
         sideCanvasVLines: [],
         mainCanvasVLines: [],
         sidePointEventItems: [],
+        sideGroupEventElements: [],
         globalRangeEventItems: [],
         entityContainerRows: new Map(),
         activeEntityRows: new Map(),
@@ -595,6 +603,12 @@ export const CoreChart = function () {
     }
 
     function setData(data: ChartData) {
+        data.sidePointEvents.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+        data.globalRangeEvents.sort((a, b) => a.startTime.valueOf() - b.startTime.valueOf());
+        for (const entity of data.entities) {
+            entity.pointEvents.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+            entity.rangeEvents.sort((a, b) => a.startTime.valueOf() - b.startTime.valueOf());
+        }
         Object.assign(_data, data);
     }
 
@@ -619,7 +633,7 @@ export const CoreChart = function () {
      */
     function truncateTimeRange(startTime: Date, endTime?: Date): [Date, Date?] {
         const trucateStartTime = new Date(Math.max(startTime.getTime(), _state.chartRenderStartTime.getTime()));
-        const trucateEndTime = endTime == null 
+        const trucateEndTime = endTime == null
             ? new Date(_state.chartRenderEndTime)
             : new Date(Math.min(endTime.getTime(), _state.chartRenderEndTime.getTime()));
         return [trucateStartTime, trucateEndTime];
@@ -858,7 +872,11 @@ export const CoreChart = function () {
         if (_options.hasVerticalLine)
             _renderSideCanvasVerticalLine();
 
-        _renderSidePointEvents();
+        if (_options.useGroupEvent) {
+            renderSideGroupEvents();
+        } else {
+            renderSidePointEvents();
+        }
     }
 
     function _renderSideCanvasVerticalLine() {
@@ -879,7 +897,12 @@ export const CoreChart = function () {
 
     function _refreshSideCanvas() {
         _refreshSideCanvasVerticalLine();
-        _refreshSidePointEvents();
+        if (_options.useGroupEvent) {
+            refreshSidePointEventGroups();
+        }
+        else {
+            _refreshSidePointEvents();
+        }
     }
 
     function _refreshSideCanvasVerticalLine() {
@@ -891,13 +914,14 @@ export const CoreChart = function () {
         }
     }
 
-
-    function _renderSidePointEvents() {
+    function renderSidePointEvents() {
         let sidePointEvents = _data.sidePointEvents;
         if (_options.maxRenderCountPerRow < _data.sidePointEvents.length) {
             sidePointEvents = _filterEvenlySpacedEvents(_data.sidePointEvents, _options.maxRenderCountPerRow);
             console.warn(`The number of side point events exceeds the maximum limit. [max: ${_options.maxRenderCountPerRow}, current: ${_data.sidePointEvents.length}]`);
         }
+
+        _state.sidePointEventItems.length = 0;
         for (const event of sidePointEvents) {
             _renderSidePointEvent(event);
         }
@@ -1505,6 +1529,127 @@ export const CoreChart = function () {
         _refreshSideCanvas();
         _refreshMainCanvas();
         _refreshActiveEntitiList();
+    }
+
+
+    function calcWidthPerMinute(): number {
+        return _state.cellWidth / _options.cellMinutes;
+    }
+
+    function convertToPointEventGroups(): GroupEvent[] {
+        const pointEventGroups: GroupEvent[] = [];
+
+        const eventGroupWidth = _options.groupEventWidth;
+        const widthPerMinute = calcWidthPerMinute();
+        const eventGroupMinutes = eventGroupWidth / widthPerMinute;
+
+        let currentTime = _state.chartRenderStartTime;
+        while (currentTime <= _state.chartRenderEndTime) {
+            pointEventGroups.push({
+                startTime: currentTime,
+                endTime: new Date(currentTime.valueOf() + toTime(eventGroupMinutes)),
+                events: []
+            });
+            currentTime = new Date(currentTime.valueOf() + toTime(eventGroupMinutes));
+        }
+
+        for (const group of pointEventGroups) {
+            const events = _data.sidePointEvents.filter((e) => group.startTime <= e.time && e.time < group.endTime);
+            group.events = events;
+        }
+        return pointEventGroups;
+    }
+
+    function calcSideRangeEventPosition(event: RangeEvent) {
+        const startTime = event.startTime;
+        const endTime = event.endTime;
+
+        const [renderStartTime, renderEndTime] = truncateTimeRange(startTime, endTime);
+        const startMinute = toMinutes(renderStartTime.valueOf() - _state.chartRenderStartTime.valueOf());
+        const durationMinute = toMinutes(renderEndTime!.valueOf() - renderStartTime.valueOf());
+
+        const left = startMinute * _state.cellWidth / _options.cellMinutes;
+        const top = (_options.sideCanvasHeight - _calcSideCanvasContentHeight()) / 2;
+        const width = durationMinute * _state.cellWidth / _options.cellMinutes;
+        const height = _calcSideCanvasContentHeight();
+        return {
+            left,
+            top,
+            width,
+            height
+        };
+    }
+
+    function createSideGroupEventContainerEl(groupEvent: GroupEvent) {
+        const containerEl = document.createElement("div");
+        const { top, left, width, height } = calcSideRangeEventPosition(groupEvent);
+        containerEl.style.top = `${top}px`;
+        containerEl.style.left = `${left}px`;
+        containerEl.style.width = `${width}px`;
+        containerEl.style.height = `${height}px`;
+        containerEl.className = "tc-side-canvas-group-event";
+
+        return containerEl;
+    }
+
+    function renderSideGroupEvent(groupEvent: GroupEvent) {
+        const startTime = groupEvent.startTime;
+        const endTime = groupEvent.endTime;
+        if (!isTimeInRange(startTime, endTime)) {
+            return;
+        }
+        const containerEl = createSideGroupEventContainerEl(groupEvent);
+        _options.renderGroupEvent(groupEvent, _elements.sideCanvas, containerEl);
+        _elements.sideCanvas.appendChild(containerEl);
+
+        _state.sideGroupEventElements.push({
+            event: groupEvent,
+            containerEl: containerEl
+        });
+    }
+
+    function renderSideGroupEvents() {
+        /* 이전 렌더링된 엘리먼트를 모두 제거 */
+        for (const eventElement of _state.sideGroupEventElements) {
+            eventElement.containerEl.remove();
+        }
+        _state.sideGroupEventElements.length = 0;
+
+        /* 새 엘리먼트 렌더링 */
+        const groupEvents = convertToPointEventGroups();
+        for (const groupEvent of groupEvents) {
+            renderSideGroupEvent(groupEvent);
+        }
+    }
+
+    function refreshSidePointEventGroups() {
+        /* HTML엘리먼트는 그대로. groupevent만 갱신 */
+        const groupEvents = convertToPointEventGroups();
+
+        let idx = 0;
+        for (const groupEvent of groupEvents) {
+            const element = _state.sideGroupEventElements[idx];
+            if (element == null) {
+                console.info("No element is found. Adding a new element.");
+                const containerEl = createSideGroupEventContainerEl(groupEvent);
+                _options.renderGroupEvent(groupEvent, _elements.sideCanvas, containerEl);
+                _elements.sideCanvas.appendChild(containerEl);
+
+                _state.sideGroupEventElements.push({
+                    event: groupEvent,
+                    containerEl: containerEl
+                });
+            } else {
+                const containerEl = element.containerEl;
+                if (containerEl.offsetWidth !== _options.groupEventWidth) {
+                    containerEl.style.width = `${_options.groupEventWidth}px`;
+                }
+                _options.renderGroupEvent(groupEvent, _elements.sideCanvas, containerEl);
+
+                element.event = groupEvent;
+            }
+            idx++;
+        }
     }
 
     return {

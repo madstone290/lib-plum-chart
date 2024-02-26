@@ -2,7 +2,7 @@ import { PlumChart } from "@/core/plum-chart";
 import ERROR_IMG_SRC from "@/assets/image/error.svg";
 import WARNING_IMG_SRC from "@/assets/image/warning.svg";
 import { GlobalErrorType, Lot, LotErrorType, LotOperationType, SideError, SideErrorType } from "@/data/types";
-import { globalErrors, legends, lotErrorTypes, lotOperationClasses, lotOperationTypes, sideErrorTypes } from "@/data/dummy";
+import { globalErrors, legends, lotErrorTypes, lotOperationClasses, lotOperationTypes, sideErrorTypes, sideErrors } from "@/data/dummy";
 import { PlumChartOptions } from "@/core/plum-chart.types";
 
 const getRandom = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
@@ -88,15 +88,16 @@ window.addEventListener("DOMContentLoaded", () => {
             canvasTitle: 'Lot Status',
             chartStartTime: new Date(2024, 0, 1, 0, 0, 0, 0),
             chartEndTime: new Date(2024, 0, 1, 24, 0, 0, 0),
-            columnAutoWidth: true,
+            columnAutoWidth: false,
             cellWidth: 50,
-            maxZoomScale: 50,
+            maxZoomScale: 30,
             minZoomScale: 1,
-            zoomScale: 5,
+            zoomScale: 1,
             zoomChangeRate: 0.2,
             scrollLeft: 100,
             scrollTop: 100,
         },
+        useGroupEvent: true,
         useEventHoverColor: false,
         eventHoverColor: '#ccc',
         gridColumns: [{
@@ -159,7 +160,6 @@ window.addEventListener("DOMContentLoaded", () => {
                 return "pl-network";
             if (lotOperationClasses.has(eventType))
                 return lotOperationClasses.get(eventType)!;
-            console.log(eventType);
             return "";
         },
     }
@@ -173,6 +173,7 @@ window.addEventListener("DOMContentLoaded", () => {
             rangeEvents: lot.operations
         })),
         sidePointEvents: getSideErrors(600, 2400),
+        //sidePointEvents: sideErrors,
         globalRangeEvents: globalErrors
     });
     plumChart.render();

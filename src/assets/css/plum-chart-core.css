@@ -148,6 +148,11 @@ img {
     height: var(--tc-side-canvas-content-height);
 }
 
+.tc-side-canvas-group-event {
+    position: absolute;
+    border: 1px solid var(--plc-border-color);
+}
+
 .tc-main-box {
     overflow: hidden;
     width: 100%;

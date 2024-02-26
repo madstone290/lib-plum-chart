@@ -22,6 +22,12 @@ export interface RangeEvent extends TimeEvent {
     endTime: Date;
 }
 
+export interface GroupEvent extends RangeEvent {
+    startTime: Date;
+    endTime: Date;
+    events: PointEvent[];
+}
+
 export interface Entity {
     pointEvents: PointEvent[];
     rangeEvents: RangeEvent[];
@@ -32,7 +38,25 @@ export const CanvasRenderTypes = ["scroll", "intersection", "eager"] as const;
 export type CanvasRenderType = typeof CanvasRenderTypes[number];
 
 
-interface PointEventItem {
+/**
+ * 렌더링된 이벤트 엘리먼트
+ */
+interface RenderedEventElement<TEvent extends TimeEvent> {
+    /**
+     * 이벤트 객체
+     */
+    event: TEvent;
+
+    /**
+     * 이벤트 HTML 엘리먼트
+     */
+    containerEl: HTMLElement;
+}
+
+/**
+ * 점 이벤트를 렌더링한 엘리먼트
+ */
+interface PointEventElement {
     /**
      * 이벤트 시간
      */
@@ -43,7 +67,10 @@ interface PointEventItem {
     containerEl: HTMLElement;
 }
 
-export interface RangeEventItem {
+/**
+ * 레인지 이벤트를 렌더링한 엘리먼트
+ */
+export interface RangeEventElement {
     /**
      * 이벤트 시작시간
      */
@@ -52,6 +79,7 @@ export interface RangeEventItem {
      * 이벤트 종료시간
      */
     endTime: Date;
+
     /**
     * 이벤트 컨테이너 엘리먼트
     */
@@ -86,11 +114,11 @@ export interface EntityRow {
     /**
      * 캔버스에 렌더링된 포인트 이벤트 목록
      */
-    pointEventContainers: PointEventItem[];
+    pointEventContainers: PointEventElement[];
     /**
      * 캔버스에 렌더링된 레인지 이벤트 목록
      */
-    rangeEventContainers: RangeEventItem[];
+    rangeEventContainers: RangeEventElement[];
 }
 
 export interface ChartData {
@@ -128,6 +156,26 @@ export interface ChartOptions {
     sideCanvasContentHeightRatio: number;
     mainRangeContentRatio: number;
     mainPointContentRatio: number;
+
+    /**
+     * 점 이벤트 그룹 사용 여부.
+     * true인 경우 점 이벤트를 그룹으로 표시한다.
+     */
+    useGroupEvent: boolean;
+
+    /**
+     * 점 이벤트 그룹 너비(px)
+     */
+    groupEventWidth: number;
+
+    /**
+     * 그룹 이벤트  렌더링 함수
+     * @param event 그룹 이벤트
+     * @param canvasEl 캔버스 엘리먼트
+     * @param containerEl 컨테이너 엘리먼트
+     * @returns 
+     */
+    renderGroupEvent: (event: GroupEvent, canvasEl: HTMLElement, containerEl: HTMLElement) => HTMLElement;
 
     /**
      * 차트 줌 최소 스케일
@@ -306,12 +354,17 @@ export interface ChartState {
     /**
      * 사이드캔버스 포인트 이벤트 엘리먼트 목록
      */
-    sidePointEventItems: Array<PointEventItem>;
+    sidePointEventItems: Array<PointEventElement>;
+
+    /**
+     * 사이드캔버스 그룹이벤트 엘리먼트 목록
+     */
+    sideGroupEventElements: Array<RenderedEventElement<GroupEvent>>;
 
     /**
      * 글로벌 레인지 이벤트 엘리먼트 목록
      */
-    globalRangeEventItems: Array<RangeEventItem>;
+    globalRangeEventItems: Array<RangeEventElement>;
 
 }
 
