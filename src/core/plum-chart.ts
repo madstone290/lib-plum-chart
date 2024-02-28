@@ -1,6 +1,7 @@
 import "@/assets/css/plum-chart.css";
 import dayjs from "dayjs";
 import CLOSE_ICON from "@/assets/image/close.svg";
+import BLACK_ERROR_ICON from "@/assets/image/black-error.svg";
 import { CoreChart } from "./plum-chart-core";
 import { GroupEvent, PointEvent, RangeEvent } from "./plum-chart-core.types";
 import { PlumChartOptions, PlumChartData, PlumChartState, SortDirection, GridRowEntity } from "./plum-chart.types";
@@ -843,27 +844,56 @@ export function PlumChart() {
 
         // 이미지 캐시 확인
         const infoEl = document.createElement("div");
-        infoEl.style.display = "flex";
-        infoEl.style.flexDirection = "row";
-        infoEl.style.alignItems = "center";
-        infoEl.style.justifyContent = "flex-start";
+        infoEl.style.position = "relative";
+        infoEl.style.width = "100%";
+        infoEl.style.height = "100%";
 
-        const imgEl = document.createElement("img");
-        imgEl.src = _options.getEventIconSrc(event);
-        imgEl.style.width = "20px";
-        imgEl.style.height = "20px";
-        imgEl.classList.add(CLS_ENTITY_POINT_EVENT);
-        infoEl.appendChild(imgEl);
+        const eventTypeCount = event.events.reduce((acc, cur) => {
+            acc.add((cur as any).type);
+            return acc;
+        }, new Set<string>());
+        const iconSrc = 1 < eventTypeCount.size ? BLACK_ERROR_ICON : _options.getEventIconSrc(event.events[0]);
+        if (1 < eventTypeCount.size) {
+    
 
-        const titleEl = document.createElement("div");
-        titleEl.innerText = event.events.length.toString();
-        infoEl.appendChild(titleEl);
+            const imgEl = document.createElement("img");
+            imgEl.style.position = "absolute";
+            imgEl.src = iconSrc
+            imgEl.style.width = "30px";
+            imgEl.style.height = "30px";
+            imgEl.classList.add(CLS_ENTITY_POINT_EVENT);
+            infoEl.appendChild(imgEl);
 
-        containerEl.appendChild(infoEl);
+            const titleEl = document.createElement("div");
+            titleEl.style.position = "absolute";
+            titleEl.style.left = "50%";
+            titleEl.style.top = "50%";
+            titleEl.style.color = "white";
+            titleEl.innerText = event.events.length.toString();
+            infoEl.appendChild(titleEl);
 
-        if (_options.useEventHoverColor) {
-            _setEventHoverColor(imgEl);
+            containerEl.appendChild(infoEl);
+
+            if (_options.useEventHoverColor) {
+                _setEventHoverColor(imgEl);
+            }
         }
+        else {
+            const imgEl = document.createElement("img");
+            imgEl.src = iconSrc
+            imgEl.style.width = "30px";
+            imgEl.style.height = "30px";
+            imgEl.classList.add(CLS_ENTITY_POINT_EVENT);
+            infoEl.appendChild(imgEl);
+
+            containerEl.appendChild(infoEl);
+
+            if (_options.useEventHoverColor) {
+                _setEventHoverColor(imgEl);
+            }
+        }
+
+
 
         // 툴팁 추가
         const showTooltip = _options.hasTooltipVisible(event);

@@ -188,7 +188,7 @@ export const CoreChart = function () {
         columnAutoWidth: true,
         entityEventSearchScrollOffset: -100,
         renderMode: "scroll",
-        maxRenderCountPerRow: 300,
+        maxRenderCountPerRow: 1000,
         useGroupEvent: false,
         groupEventWidth: 50,
         renderGroupEvent: (group: GroupEvent, canvasEl: HTMLElement, containerEl: HTMLElement) => {

@@ -90,12 +90,13 @@ window.addEventListener("DOMContentLoaded", () => {
             chartEndTime: new Date(2024, 0, 1, 24, 0, 0, 0),
             columnAutoWidth: true,
             cellWidth: 50,
+            cellMinutes: 60,
             maxZoomScale: 30,
             minZoomScale: 1,
             zoomScale: 1,
             zoomChangeRate: 0.2,
             scrollLeft: 100,
-            scrollTop: 100,
+            scrollTop: 100
         },
         useGroupEvent: true,
         useEventHoverColor: false,
@@ -172,7 +173,7 @@ window.addEventListener("DOMContentLoaded", () => {
             pointEvents: lot.errors,
             rangeEvents: lot.operations
         })),
-        sidePointEvents: getSideErrors(600, 2400),
+        sidePointEvents: getSideErrors(200, 1000),
         //sidePointEvents: sideErrors,
         globalRangeEvents: globalErrors
     });
