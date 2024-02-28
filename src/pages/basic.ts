@@ -88,7 +88,7 @@ window.addEventListener("DOMContentLoaded", () => {
             canvasTitle: 'Lot Status',
             chartStartTime: new Date(2024, 0, 1, 0, 0, 0, 0),
             chartEndTime: new Date(2024, 0, 1, 24, 0, 0, 0),
-            columnAutoWidth: false,
+            columnAutoWidth: true,
             cellWidth: 50,
             maxZoomScale: 30,
             minZoomScale: 1,

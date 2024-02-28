@@ -873,7 +873,8 @@ export const CoreChart = function () {
             _renderSideCanvasVerticalLine();
 
         if (_options.useGroupEvent) {
-            renderSideGroupEvents();
+            //renderSideGroupEvents();
+            startRenderGroupEvent();
         } else {
             renderSidePointEvents();
         }
@@ -1560,96 +1561,61 @@ export const CoreChart = function () {
         return pointEventGroups;
     }
 
-    function calcSideRangeEventPosition(event: RangeEvent) {
-        const startTime = event.startTime;
-        const endTime = event.endTime;
-
-        const [renderStartTime, renderEndTime] = truncateTimeRange(startTime, endTime);
-        const startMinute = toMinutes(renderStartTime.valueOf() - _state.chartRenderStartTime.valueOf());
-        const durationMinute = toMinutes(renderEndTime!.valueOf() - renderStartTime.valueOf());
-
-        const left = startMinute * _state.cellWidth / _options.cellMinutes;
-        const top = (_options.sideCanvasHeight - _calcSideCanvasContentHeight()) / 2;
-        const width = durationMinute * _state.cellWidth / _options.cellMinutes;
-        const height = _calcSideCanvasContentHeight();
-        return {
-            left,
-            top,
-            width,
-            height
-        };
-    }
-
-    function createSideGroupEventContainerEl(groupEvent: GroupEvent) {
-        const containerEl = document.createElement("div");
-        const { top, left, width, height } = calcSideRangeEventPosition(groupEvent);
-        containerEl.style.top = `${top}px`;
-        containerEl.style.left = `${left}px`;
-        containerEl.style.width = `${width}px`;
-        containerEl.style.height = `${height}px`;
-        containerEl.className = "tc-side-canvas-group-event";
-
-        return containerEl;
-    }
-
-    function renderSideGroupEvent(groupEvent: GroupEvent) {
-        const startTime = groupEvent.startTime;
-        const endTime = groupEvent.endTime;
-        if (!isTimeInRange(startTime, endTime)) {
-            return;
-        }
-        const containerEl = createSideGroupEventContainerEl(groupEvent);
-        _options.renderGroupEvent(groupEvent, _elements.sideCanvas, containerEl);
-        _elements.sideCanvas.appendChild(containerEl);
-
-        _state.sideGroupEventElements.push({
-            event: groupEvent,
-            containerEl: containerEl
-        });
-    }
-
-    function renderSideGroupEvents() {
-        /* 이전 렌더링된 엘리먼트를 모두 제거 */
-        for (const eventElement of _state.sideGroupEventElements) {
-            eventElement.containerEl.remove();
-        }
-        _state.sideGroupEventElements.length = 0;
-
-        /* 새 엘리먼트 렌더링 */
-        const groupEvents = convertToPointEventGroups();
-        for (const groupEvent of groupEvents) {
-            renderSideGroupEvent(groupEvent);
-        }
-    }
-
     function refreshSidePointEventGroups() {
         /* HTML엘리먼트는 그대로. groupevent만 갱신 */
-        const groupEvents = convertToPointEventGroups();
+        groupEvents = convertToPointEventGroups();
 
-        let idx = 0;
-        for (const groupEvent of groupEvents) {
-            const element = _state.sideGroupEventElements[idx];
-            if (element == null) {
-                console.info("No element is found. Adding a new element.");
-                const containerEl = createSideGroupEventContainerEl(groupEvent);
-                _options.renderGroupEvent(groupEvent, _elements.sideCanvas, containerEl);
-                _elements.sideCanvas.appendChild(containerEl);
+        renderGroupEventInternal();
+    }
 
-                _state.sideGroupEventElements.push({
-                    event: groupEvent,
-                    containerEl: containerEl
-                });
-            } else {
-                const containerEl = element.containerEl;
-                if (containerEl.offsetWidth !== _options.groupEventWidth) {
-                    containerEl.style.width = `${_options.groupEventWidth}px`;
+    function renderGroupEventInternal() {
+        const canvasLeft = _elements.mainCanvasBox.scrollLeft;
+        const canvasRight = canvasLeft + _elements.mainCanvasBox.clientWidth;
+        const maxContainerCount = Math.ceil(_elements.mainCanvas.scrollWidth / _options.groupEventWidth);
+
+
+        for (let index = 0; index < maxContainerCount; index++) {
+            const groupEvent = groupEvents[index];
+            const boxLeft = index * _options.groupEventWidth;
+            const boxRight = boxLeft + _options.groupEventWidth;
+            if (canvasLeft < boxRight && boxLeft < canvasRight) {
+                // box is in view
+                const boxRendered = containers.has(index);
+                if (boxRendered) {
+                    const box = containers.get(index)!;
+                    // box.innerText = groupEvent.events.length.toString();
+                    _options.renderGroupEvent(groupEvent, _elements.sideCanvas, box);
+                    continue;
                 }
-                _options.renderGroupEvent(groupEvent, _elements.sideCanvas, containerEl);
-
-                element.event = groupEvent;
+                const boxInfo = {
+                    width: _options.groupEventWidth,
+                    height: 30,
+                    x: boxLeft,
+                    y: 5
+                }
+                const box = document.createElement("div");
+                box.style.width = `${boxInfo.width}px`;
+                box.style.height = `${boxInfo.height}px`;
+                // box.style.backgroundColor = 'rgb(' + Math.floor(Math.random() * 255) + ',' + Math.floor(Math.random() * 255) + ',' + Math.floor(Math.random() * 255) + ')';
+                box.style.position = "absolute";
+                box.style.left = `${boxInfo.x}px`;
+                box.style.top = `${boxInfo.y}px`;
+                // box.innerText = groupEvent.events.length.toString();
+                _options.renderGroupEvent(groupEvent, _elements.sideCanvas, box);
+                _elements.sideCanvas.appendChild(box);
+                containers.set(index, box);
             }
-            idx++;
         }
+    }
+    let groupEvents: any[] = [];
+    const containers = new Map<number, HTMLElement>();
+
+    function startRenderGroupEvent() {
+        groupEvents = convertToPointEventGroups();
+        _elements.mainCanvasBox.removeEventListener("scroll", renderGroupEventInternal);
+        _elements.mainCanvasBox.addEventListener("scroll", renderGroupEventInternal);
+        renderGroupEventInternal();
+
     }
 
     return {

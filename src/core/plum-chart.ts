@@ -822,25 +822,53 @@ export function PlumChart() {
     const eventTooltipMap = new Map<HTMLElement, HTMLElement>();
     function renderGroupEvent(event: GroupEvent, canvasEl: HTMLElement, containerEl: HTMLElement) {
         const hasSubEvent = 0 < event.events.length;
+
         if (!hasSubEvent) {
+            // 이전 툴팁 및 이미지 제거
+            let eventEl = containerEl.children[0] as HTMLElement;
+            const tooltipEl = eventTooltipMap.get(eventEl)!;
+            if (tooltipEl) {
+                tooltipEl.remove();
+            }
             containerEl.replaceChildren();
             return containerEl;
         }
 
-        if (!containerEl.hasChildNodes()) {
-            const imgEl = document.createElement("img");
-            imgEl.src = _options.getEventIconSrc(event);
-            imgEl.classList.add(CLS_ENTITY_POINT_EVENT);
-            containerEl.appendChild(imgEl);
+        let eventEl = containerEl.children[0] as HTMLElement;
+        const tooltipEl = eventTooltipMap.get(eventEl)!;
+        if (tooltipEl) {
+            tooltipEl.remove();
+        }
+        containerEl.replaceChildren();
 
-            if (_options.useEventHoverColor) {
-                _setEventHoverColor(imgEl);
-            }
+        // 이미지 캐시 확인
+        const infoEl = document.createElement("div");
+        infoEl.style.display = "flex";
+        infoEl.style.flexDirection = "row";
+        infoEl.style.alignItems = "center";
+        infoEl.style.justifyContent = "flex-start";
+
+        const imgEl = document.createElement("img");
+        imgEl.src = _options.getEventIconSrc(event);
+        imgEl.style.width = "20px";
+        imgEl.style.height = "20px";
+        imgEl.classList.add(CLS_ENTITY_POINT_EVENT);
+        infoEl.appendChild(imgEl);
+
+        const titleEl = document.createElement("div");
+        titleEl.innerText = event.events.length.toString();
+        infoEl.appendChild(titleEl);
+
+        containerEl.appendChild(infoEl);
+
+        if (_options.useEventHoverColor) {
+            _setEventHoverColor(imgEl);
         }
 
-        let eventEl = containerEl.children[0] as HTMLElement;
+        // 툴팁 추가
         const showTooltip = _options.hasTooltipVisible(event);
         if (showTooltip) {
+            let eventEl = containerEl.children[0] as HTMLElement;
             if (eventTooltipMap.has(eventEl)) {
                 const tooltipEl = eventTooltipMap.get(eventEl)!;
                 tooltipEl.replaceChildren();
@@ -855,9 +883,8 @@ export function PlumChart() {
                 _addTooltip(eventEl, tooltipEl);
                 eventTooltipMap.set(eventEl, tooltipEl);
             }
-
         }
-        return eventEl;
+        return containerEl;
     }
 
     function setOptions(options: Partial<PlumChartOptions>) {
