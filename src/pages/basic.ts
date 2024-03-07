@@ -2,7 +2,7 @@ import { PlumChart } from "@/core/plum-chart";
 import ERROR_IMG_SRC from "@/assets/image/error.svg";
 import WARNING_IMG_SRC from "@/assets/image/warning.svg";
 import { GlobalErrorType, Lot, LotErrorType, LotOperationType, SideError, SideErrorType } from "@/data/types";
-import { globalErrors, legends, lotErrorTypes, lotOperationClasses, lotOperationTypes, sideErrorTypes, sideErrors } from "@/data/dummy";
+import { globalErrors, legends, lotErrorTypes, lotOperationClasses, lotOperationTypes, sideErrorTypes } from "@/data/dummy";
 import { PlumChartOptions } from "@/core/plum-chart.types";
 
 const getRandom = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
@@ -93,10 +93,10 @@ window.addEventListener("DOMContentLoaded", () => {
             cellMinutes: 60,
             maxZoomScale: 30,
             minZoomScale: 1,
-            zoomScale: 1,
+            zoomScale: 3,
             zoomChangeRate: 0.2,
-            scrollLeft: 100,
-            scrollTop: 100
+            scrollLeft: 200,
+            scrollTop: 100,
         },
         useGroupEvent: true,
         useEventHoverColor: false,

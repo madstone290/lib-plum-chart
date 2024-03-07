@@ -814,7 +814,11 @@ export function PlumChart() {
         let number = 1;
         for (const subEvent of groupEvent.events) {
             const div = document.createElement("div");
-            div.innerText = number + ": " + subEvent.time.toString();
+            div.style.whiteSpace = "pre";
+            const type = `[${(subEvent as any).type}]`;
+            const typeText = type.padEnd(12, " ");
+            const timeText = dayjs(subEvent.time).format("YYYY-MM-DD HH:mm:ss");
+            div.innerText = `${number}. ${typeText} ${timeText}`;
             tooltipEl.appendChild(div);
             number++;
         }
@@ -849,12 +853,12 @@ export function PlumChart() {
         infoEl.style.height = "100%";
 
         const eventTypeCount = event.events.reduce((acc, cur) => {
-            acc.add((cur as any).type);
+            acc.push((cur as any).type);
             return acc;
-        }, new Set<string>());
-        const iconSrc = 1 < eventTypeCount.size ? BLACK_ERROR_ICON : _options.getEventIconSrc(event.events[0]);
-        if (1 < eventTypeCount.size) {
-    
+        }, [] as string[])
+        const iconSrc = 1 < eventTypeCount.length ? BLACK_ERROR_ICON : _options.getEventIconSrc(event.events[0]);
+        if (1 < eventTypeCount.length) {
+
 
             const imgEl = document.createElement("img");
             imgEl.style.position = "absolute";
