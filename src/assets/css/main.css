@@ -71,13 +71,11 @@ body * {
     .basicChartContent {
         width: 100%;
         height: 100%;
-        background-color: red;
     }
 
     .monitoringChartContent {
         width: 100%;
         height: 100%;
-        background-color: chartreuse;
     }
 
     .hidden {
